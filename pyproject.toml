@@ -1,9 +1,0 @@
-[project]
-name = "ai-resume-parser"
-version = "1.0.0"
-requires-python = ">=3.11"
-
-[tool.setuptools]
-# Makes parsers/, extractors/, etc. importable as top-level packages
-# when the project root is in PYTHONPATH (Streamlit sets this automatically).
-packages = ["parsers", "extractors", "analyzers", "scoring", "utils"]

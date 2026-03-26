@@ -1,14 +1,20 @@
 [theme]
-base = "dark"
-primaryColor = "#6c63ff"
-backgroundColor = "#0d0f16"
-secondaryBackgroundColor = "#151823"
-textColor = "#e8eaf0"
+primaryColor = "#bb5a38"
+backgroundColor = "#f4f3ed"
+secondaryBackgroundColor = "#ecebe3"
+textColor = "#3d3a2a"
 font = "sans serif"
+showWidgetBorder = true
+baseRadius = "0.6rem"
 
 [server]
-headless = true
-port = 8501
+enableStaticServing = false
+maxUploadSize = 50
+enableCORS = false
+enableXsrfProtection = true
 
 [browser]
 gatherUsageStats = false
+
+[client]
+showErrorDetails = false
