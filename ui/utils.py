@@ -67,7 +67,7 @@ def build_candidate_dict(name: str, parse_result: dict, llm_data: dict, regex_da
     is_student = bool(llm_student if llm_student is not None else regex_data.get("is_student", False))
     ctype = llm_ctype or regex_data.get("candidate_type", "fresher")
 
-    intern_w = round(i_months / 12.0 * 0.3, 2)
+    intern_w = round(i_months / 12.0 * 1.0, 2)
     effective_exp = round(ft_years + intern_w, 2)
 
     return {
