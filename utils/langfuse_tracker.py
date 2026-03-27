@@ -127,9 +127,12 @@ class LangfuseTracker:
                         model=model,
                         input=prompt,
                         output=response,
-                        usage={
+                        usage_details={
                             "input":  input_tokens,
                             "output": output_tokens,
+                        },
+                        cost_details={
+                            "cost": cost,
                         },
                         metadata=metadata,
                     ) as gen:
