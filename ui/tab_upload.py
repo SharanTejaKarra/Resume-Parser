@@ -113,6 +113,7 @@ def render_tab_upload(log, extract_pdf, extract_docx):
                     is_stud = bool(llm_data.get("is_student") if llm_data.get("is_student") is not None else regex.get("is_student", False))
                     ctype = llm_data.get("candidate_type") or regex.get("candidate_type", "fresher")
 
+                
                     ats = compute_ats_score(
                         jd_similarity=jd_sim,
                         skill_match_pct=skill_pct,
@@ -120,11 +121,14 @@ def render_tab_upload(log, extract_pdf, extract_docx):
                         internship_months=i_months,
                         is_student=is_stud,
                         candidate_type=ctype,
-                        min_exp_required=safe_float(jd.get("min_experience_years", 2)),
-                        github_score=safe_float(gh.get("github_score", 0)),
-                        leetcode_score=safe_float(lc.get("leetcode_score", 0)),
+                        min_exp_required=float(jd.get("min_experience_years") or 0),
+                        github_score=float(gh.get("github_score", 0)),
+                        leetcode_score=float(lc.get("leetcode_score", 0)),
                         projects=safe_list(llm_data.get("projects")),
                     )
+
+
+
 
                     # 9. Build
                     candidate = build_candidate_dict(
@@ -184,9 +188,12 @@ def render_candidate_expander(c):
         pcol3.markdown(f"**Text chars:** `{c.get('char_count', 0):,}`")
 
         st.write("**Matched Skills:**")
-        st.write(", ".join([f"Matched: {s}" for s in c["matched_skills"]]))
+        st.write(", ".join(c["matched_skills"]))
+
         st.write("**Missing Skills:**")
-        st.write(", ".join([f"Missing: {s}" for s in c["missing_skills"]]))
+        st.write(", ".join(c["missing_skills"]))
+
+
 
         if c["github"].get("public_repos"):
             gh_d = c["github"]
