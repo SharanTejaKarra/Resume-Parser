@@ -292,7 +292,7 @@ def extract_regex_fields(text: str) -> Dict[str, Any]:
         full_time_years, intern_months = _compute_experience_from_section(exp_section)
 
     intern_months = min(intern_months, 36.0)  # cap sanity: max 3yr internship
-    intern_years_weighted = round(intern_months / 12.0 * 0.3, 2)  # 0.3 weight
+    intern_years_weighted = round(intern_months / 12.0 * 1.0, 2)  # 1.0 weight (same as full-time)
     effective_exp = round(full_time_years + intern_years_weighted, 2)
 
     candidate_type = (
