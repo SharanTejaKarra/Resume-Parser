@@ -9,7 +9,7 @@ Standard formula:
   0.15  projects           (count + richness)
   0.10  github             (activity score /100)
   0.05  leetcode           (weighted solve /100)
-  0.05  experience         (only full-time + 0.3×intern)
+  0.05  experience         (full-time + 1.0×intern)
 ─────────────────────────────────────────────────
 Fresher / student override (full_time_exp < 1yr):
   0.40  JD similarity
