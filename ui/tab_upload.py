@@ -162,7 +162,9 @@ def render_tab_upload(log, extract_pdf, extract_docx):
     if st.session_state.candidates:
         st.divider()
         st.subheader(f"Processed Candidates ({len(st.session_state.candidates)})")
-        for c in st.session_state.candidates:
+        # Sort candidates by ATS score descending
+        sorted_candidates = sorted(st.session_state.candidates, key=lambda x: x.get("ats_score", 0), reverse=True)
+        for c in sorted_candidates:
             render_candidate_expander(c)
 
 def render_candidate_expander(c):
