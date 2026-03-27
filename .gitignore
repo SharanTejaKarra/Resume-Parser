@@ -22,3 +22,6 @@ env/
 # User Data (Resumes)
 *.pdf
 *.docx
+
+# Logs
+logs/
