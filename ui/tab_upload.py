@@ -164,15 +164,15 @@ def render_tab_upload(log, extract_pdf, extract_docx):
         st.subheader(f"Processed Candidates ({len(st.session_state.candidates)})")
         # Sort candidates by ATS score descending
         sorted_candidates = sorted(st.session_state.candidates, key=lambda x: x.get("ats_score", 0), reverse=True)
-        for c in sorted_candidates:
-            render_candidate_expander(c)
+        for idx, c in enumerate(sorted_candidates):
+            render_candidate_expander(c, idx)
 
-def render_candidate_expander(c):
+def render_candidate_expander(c, idx):
     """Render the detailed expander for a candidate."""
     parse_badge = {"OK": "OK", "LOW_CONFIDENCE": "Low Confidence", "PARSE_FAILED": "Failed"}.get(c.get("parse_status", "OK"), "OK")
     ctype_emoji = {"student": "Student", "fresher": "Fresher", "experienced": "Experienced"}.get(c.get("candidate_type", "fresher"), "Experienced")
 
-    with st.expander(f"**{c['name']}**  |  ATS: {c['ats_score']}  |  {ctype_emoji} {c.get('candidate_type','—').capitalize()}  |  Parse: {parse_badge}"):
+    with st.expander(f"**{c['name']}**  |  ATS: {c['ats_score']}  |  {ctype_emoji}  |  Parse: {parse_badge}"):
         col_a, col_b, col_c, col_d = st.columns(4)
         col_a.metric("ATS Score",     f"{c['ats_score']}")
         col_b.metric("JD Similarity", f"{c['jd_similarity']:.2f}")
@@ -204,6 +204,6 @@ def render_candidate_expander(c):
             lc_d = c["leetcode"]
             st.write(f"**LeetCode:** [{lc_d['username']}]({lc_d['profile_url']}) · Easy: {lc_d['easy_solved']} Medium: {lc_d['medium_solved']} Hard: {lc_d['hard_solved']} · Score: **{lc_d['leetcode_score']}**")
 
-        if st.checkbox("Show Full Extracted Data", key=f"raw_data_{c['name']}"):
+        if st.checkbox("Show Full Extracted Data", key=f"raw_data_{idx}"):
             clean = {k: v for k, v in c.items() if k not in ["github", "leetcode", "ats_breakdown"]}
             st.json(clean)
