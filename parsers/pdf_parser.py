@@ -63,9 +63,9 @@ def _is_two_column(blocks: List[Dict[str, Any]], page_width: float) -> bool:
 # Stage 1 – PyMuPDF  (primary)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _extract_pymupdf(file_bytes: bytes) -> Tuple[str, str, str, int, bool]:
+def _extract_pymupdf(file_bytes: bytes) -> Tuple[str, str, str, int, bool, List[str]]:
     """
-    Returns (full_text, left_text, right_text, page_count, is_two_column).
+    Returns (full_text, left_text, right_text, page_count, is_two_column, links).
     Raises ImportError if fitz not installed.
     Raises RuntimeError if text is empty (caller will fall through).
     """
@@ -75,10 +75,15 @@ def _extract_pymupdf(file_bytes: bytes) -> Tuple[str, str, str, int, bool]:
     all_left: List[str] = []
     all_right: List[str] = []
     two_col_votes: List[bool] = []
+    links: List[str] = []
 
     for page in doc:
         page_width = page.rect.width
         raw_blocks = page.get_text("blocks")  # (x0,y0,x1,y1,text,block_no,block_type)
+
+        for link in page.get_links():
+            if "uri" in link:
+                links.append(link["uri"])
 
         blocks: List[Dict[str, Any]] = []
         for b in raw_blocks:
@@ -96,13 +101,19 @@ def _extract_pymupdf(file_bytes: bytes) -> Tuple[str, str, str, int, bool]:
     doc.close()
 
     page_count = len(two_col_votes)
-    two_col    = sum(two_col_votes) > len(two_col_votes) / 2
+    # prevent division by zero in len(two_col_votes) / 2
+    two_col    = sum(two_col_votes) > len(two_col_votes) / 2 if two_col_votes else False
 
     left_text  = "\n".join(all_left)
     right_text = "\n".join(all_right)
     full_text  = (left_text + "\n\n" + right_text) if two_col else left_text
+    
+    unique_links = list(set(links))
+    if unique_links:
+        links_block = "\n\n[Extracted Hyperlinks]:\n" + "\n".join(unique_links)
+        full_text += links_block
 
-    return full_text.strip(), left_text.strip(), right_text.strip(), page_count, two_col
+    return full_text.strip(), left_text.strip(), right_text.strip(), page_count, two_col, unique_links
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -174,11 +185,11 @@ def extract_pdf(file_bytes: bytes) -> Dict[str, Any]:
 
     # ── Stage 1: PyMuPDF ───────────────────────────────────────────────────────
     try:
-        full, left, right, pages, is_two_col = _extract_pymupdf(file_bytes)
+        full, left, right, pages, is_two_col, links = _extract_pymupdf(file_bytes)
         if len(full) >= MIN_CHARS:
-            log.info("Stage 1 (PyMuPDF) success: chars=%d pages=%d two_col=%s",
-                     len(full), pages, is_two_col)
-            return _build_result(full, left, right, pages, is_two_col, "pymupdf")
+            log.info("Stage 1 (PyMuPDF) success: chars=%d pages=%d two_col=%s links=%d",
+                     len(full), pages, is_two_col, len(links))
+            return _build_result(full, left, right, pages, is_two_col, "pymupdf", links)
         log.warning("Stage 1 (PyMuPDF) returned only %d chars → trying pdfplumber", len(full))
     except Exception as e:
         log.warning("Stage 1 (PyMuPDF) error: %s", e)
@@ -215,12 +226,14 @@ def extract_pdf(file_bytes: bytes) -> Dict[str, Any]:
         "parse_status":  "PARSE_FAILED",
         "char_count":    0,
         "raw_blocks":    [],
+        "links":         [],
     }
 
 
 def _build_result(
     full: str, left: str, right: str,
     pages: int, two_col: bool, parser: str,
+    links: List[str] = None
 ) -> Dict[str, Any]:
     char_count   = len(full)
     parse_status = "OK" if char_count >= MIN_CHARS else "LOW_CONFIDENCE"
@@ -234,6 +247,7 @@ def _build_result(
         "parse_status":  parse_status,
         "char_count":    char_count,
         "raw_blocks":    [],
+        "links":         links or [],
     }
 
 

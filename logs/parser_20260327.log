@@ -4,199 +4,161 @@
 [2026-03-27 00:10:48] [WARNING] [langfuse_tracker] langfuse not installed – observability disabled
 [2026-03-27 00:11:19] [WARNING] [langfuse_tracker] langfuse not installed – observability disabled
 [2026-03-27 00:13:28] [WARNING] [langfuse_tracker] langfuse not installed – observability disabled
-[2026-03-27 12:43:39] [WARNING] [langfuse_tracker] langfuse not installed – observability disabled
-[2026-03-27 12:44:18] [INFO] [llm_extractor] LLM JD extraction (chars=2368)
-[2026-03-27 12:44:18] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:44:28] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=10347ms in_tok=918 out_tok=2060
-[2026-03-27 12:44:28] [INFO] [app] JD parsed successfully
-[2026-03-27 12:44:47] [INFO] [app] Starting: atharva_backend_engineer_resume.pdf
-[2026-03-27 12:44:48] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=2734 pages=2 two_col=False
-[2026-03-27 12:44:48] [INFO] [app]   Parsed (Single-column, 2 pages, 2734 chars) via pymupdf [OK]
-[2026-03-27 12:44:48] [INFO] [regex_extractor] Running regex extraction (2734 chars)
-[2026-03-27 12:44:48] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
-[2026-03-27 12:44:48] [INFO] [llm_extractor] LLM extraction for 'atharva_backend_engineer_resume' (chars=2734)
-[2026-03-27 12:44:48] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:44:59] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=11292ms in_tok=1363 out_tok=2138
-[2026-03-27 12:44:59] [INFO] [github_analyzer] Fetching GitHub profile for: AtharvaBagade23
-[2026-03-27 12:45:00] [INFO] [github_analyzer] GitHub done: repos=20 stars=9 score=55.0
-[2026-03-27 12:45:00] [INFO] [leetcode_analyzer] Fetching LeetCode stats for: abagade26
-[2026-03-27 12:45:00] [INFO] [leetcode_analyzer] LeetCode done: E=49 M=12 H=0 score=14.6
-[2026-03-27 12:45:00] [INFO] [embedding_matcher] Computing embedding similarity…
-[2026-03-27 12:45:00] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
-[2026-03-27 12:45:36] [INFO] [embedding_matcher] Model loaded ✓
-[2026-03-27 12:45:36] [INFO] [embedding_matcher] Embedding similarity: 0.6640
-[2026-03-27 12:45:37] [INFO] [embedding_matcher] Skill match: 9/23 = 39.1%
-[2026-03-27 12:45:37] [INFO] [app] FT Exp LLM: 0
-[2026-03-27 12:45:37] [INFO] [app] FT Exp Regex: 0.0
-[2026-03-27 12:45:37] [INFO] [ats_scorer] ATS fresher-mode: 61.8 | sim=0.66 skill=39.1% proj=100.0 gh=55.0 ft=0.0y intern=0mo eff=0.00y
-[2026-03-27 12:45:37] [INFO] [app]   ATS score: 61.8 (mode=fresher)
-[2026-03-27 12:45:37] [INFO] [app] Starting: full_stack_resume.docx
-[2026-03-27 12:45:37] [INFO] [docx_parser] DOCX extracted: paragraphs=14 chars=1648
-[2026-03-27 12:45:37] [INFO] [app]   Parsed (Single-column, 1 pages, 0 chars) via unknown [OK]
-[2026-03-27 12:45:37] [INFO] [regex_extractor] Running regex extraction (1648 chars)
-[2026-03-27 12:45:37] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=11mo eff=0.27y skills=26
-[2026-03-27 12:45:37] [INFO] [llm_extractor] LLM extraction for 'full_stack_resume' (chars=1648)
-[2026-03-27 12:45:37] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:45:45] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=7210ms in_tok=1178 out_tok=1738
-[2026-03-27 12:45:45] [INFO] [github_analyzer] Fetching GitHub profile for: prathamlohia
-[2026-03-27 12:45:45] [INFO] [embedding_matcher] Computing embedding similarity…
-[2026-03-27 12:45:45] [INFO] [embedding_matcher] Embedding similarity: 0.5100
-[2026-03-27 12:45:45] [INFO] [embedding_matcher] Skill match: 10/23 = 43.5%
-[2026-03-27 12:45:45] [INFO] [app] FT Exp LLM: 0
-[2026-03-27 12:45:45] [INFO] [app] FT Exp Regex: 0.0
-[2026-03-27 12:45:45] [INFO] [ats_scorer] ATS fresher-mode: 50.9 | sim=0.51 skill=43.5% proj=87.3 gh=0.0 ft=0.0y intern=11mo eff=0.27y
-[2026-03-27 12:45:45] [INFO] [app]   ATS score: 50.9 (mode=fresher)
-[2026-03-27 12:51:23] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:51:26] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=2842ms in_tok=289 out_tok=619
-[2026-03-27 12:51:26] [INFO] [app] LLM comparison generated
-[2026-03-27 12:54:39] [WARNING] [langfuse_tracker] langfuse not installed – observability disabled
-[2026-03-27 12:54:39] [WARNING] [langfuse_tracker] Langfuse SDK not installed
-[2026-03-27 12:55:17] [WARNING] [langfuse_tracker] langfuse not installed – observability disabled
-[2026-03-27 12:55:17] [WARNING] [langfuse_tracker] Langfuse SDK not installed
-[2026-03-27 12:55:32] [WARNING] [langfuse_tracker] Langfuse SDK not installed
-[2026-03-27 12:55:44] [INFO] [langfuse_tracker] Langfuse init: pk=NOT_SET sk=NOT_SET host=https://cloud.langfuse.com
-[2026-03-27 12:55:44] [WARNING] [langfuse_tracker] Langfuse keys not configured – tracking disabled (local mode)
-[2026-03-27 12:55:56] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 12:55:56] [INFO] [langfuse_tracker] ✓ Langfuse v4 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 12:56:56] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 12:56:56] [INFO] [langfuse_tracker] ✓ Langfuse v4 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 12:57:05] [INFO] [llm_extractor] LLM JD extraction (chars=2368)
-[2026-03-27 12:57:05] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:57:09] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=4297ms in_tok=918 out_tok=949
-[2026-03-27 12:57:09] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=jd-extraction tokens=1867
-[2026-03-27 12:57:09] [ERROR] [langfuse_tracker] ✗ Langfuse logging error: 'Langfuse' object has no attribute 'trace'
-Traceback (most recent call last):
-  File "/Users/prathamlohia/Resume-Parser/Resume_Pasrser_Engine_POC/utils/langfuse_tracker.py", line 104, in track_llm_call
-    trace = client.trace(
-AttributeError: 'Langfuse' object has no attribute 'trace'
+[2026-03-27 12:49:15] [INFO] [langfuse_tracker] Langfuse v4 tracker initialised → https://cloud.langfuse.com
+[2026-03-27 12:50:06] [INFO] [langfuse_tracker] Langfuse v4 tracker initialised → https://cloud.langfuse.com
+[2026-03-27 12:51:27] [INFO] [llm_extractor] LLM JD extraction (chars=1905)
+[2026-03-27 12:51:27] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:51:42] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=15446ms in_tok=680 out_tok=1521
+[2026-03-27 12:51:43] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=jd-extraction tokens=2201 cost=$0.016910
+[2026-03-27 12:51:43] [INFO] [app] JD parsed successfully
+[2026-03-27 12:52:17] [INFO] [app] Starting: Resume_Latest_.pdf
+[2026-03-27 12:52:17] [WARNING] [pdf_parser] Stage 1 (PyMuPDF) error: No module named 'fitz'
+[2026-03-27 12:52:17] [INFO] [pdf_parser] Stage 2 (pdfplumber) success: chars=3557
+[2026-03-27 12:52:17] [INFO] [app]   Parsed (Single-column, 1 pages, 3557 chars) via pdfplumber [OK]
+[2026-03-27 12:52:17] [INFO] [regex_extractor] Running regex extraction (3557 chars)
+[2026-03-27 12:52:17] [INFO] [regex_extractor] Regex done → type=fresher ft=0y intern=0mo eff=0y skills=28
+[2026-03-27 12:52:17] [INFO] [llm_extractor] LLM extraction for 'Resume_Latest_' (chars=3557)
+[2026-03-27 12:52:17] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:52:51] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=33431ms in_tok=1557 out_tok=2846
+[2026-03-27 12:52:52] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=4403 cost=$0.032353
+[2026-03-27 12:52:52] [INFO] [github_analyzer] Fetching GitHub profile for: AayushKulkarni36
+[2026-03-27 12:52:53] [INFO] [github_analyzer] GitHub done: repos=14 stars=5 score=35.5
+[2026-03-27 12:52:53] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 12:52:53] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
+[2026-03-27 12:53:01] [INFO] [embedding_matcher] Model loaded ✓
+[2026-03-27 12:53:01] [INFO] [embedding_matcher] Embedding similarity: 0.5779
+[2026-03-27 12:53:01] [INFO] [embedding_matcher] Skill match: 10/23 = 43.5%
+[2026-03-27 12:53:01] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 12:53:01] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 12:53:01] [INFO] [ats_scorer] ATS fresher-mode: 57.9 | sim=0.58 skill=43.5% proj=100.0 gh=35.5 ft=0.0y intern=0mo eff=0.00y
+[2026-03-27 12:53:01] [INFO] [app]   ATS score: 57.9 (mode=fresher)
+[2026-03-27 12:53:01] [INFO] [app] Starting: Sahil Kulkarni resume.pdf
+[2026-03-27 12:53:01] [WARNING] [pdf_parser] Stage 1 (PyMuPDF) error: No module named 'fitz'
+[2026-03-27 12:53:01] [INFO] [pdf_parser] Stage 2 (pdfplumber) success: chars=2284
+[2026-03-27 12:53:01] [INFO] [app]   Parsed (Single-column, 1 pages, 2284 chars) via pdfplumber [OK]
+[2026-03-27 12:53:01] [INFO] [regex_extractor] Running regex extraction (2284 chars)
+[2026-03-27 12:53:01] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
+[2026-03-27 12:53:01] [INFO] [llm_extractor] LLM extraction for 'Sahil Kulkarni resume' (chars=2284)
+[2026-03-27 12:53:01] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:53:18] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=17135ms in_tok=1351 out_tok=2083
+[2026-03-27 12:53:19] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=3434 cost=$0.024207
+[2026-03-27 12:53:19] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 12:53:19] [INFO] [embedding_matcher] Embedding similarity: 0.6167
+[2026-03-27 12:53:19] [INFO] [embedding_matcher] Skill match: 14/23 = 60.9%
+[2026-03-27 12:53:19] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 12:53:19] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 12:53:19] [INFO] [ats_scorer] ATS fresher-mode: 62.9 | sim=0.62 skill=60.9% proj=100.0 gh=0.0 ft=0.0y intern=0mo eff=0.00y
+[2026-03-27 12:53:19] [INFO] [app]   ATS score: 62.9 (mode=fresher)
+[2026-03-27 12:56:46] [INFO] [langfuse_tracker] Langfuse v4 tracker initialised → https://cloud.langfuse.com
+[2026-03-27 12:56:53] [INFO] [llm_extractor] LLM JD extraction (chars=1905)
+[2026-03-27 12:56:54] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:57:08] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=14132ms in_tok=680 out_tok=1193
+[2026-03-27 12:57:09] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=jd-extraction tokens=1873 cost=$0.013630
 [2026-03-27 12:57:09] [INFO] [app] JD parsed successfully
-[2026-03-27 12:57:26] [INFO] [app] Starting: atharva_backend_engineer_resume.pdf
-[2026-03-27 12:57:26] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=2734 pages=2 two_col=False
-[2026-03-27 12:57:26] [INFO] [app]   Parsed (Single-column, 2 pages, 2734 chars) via pymupdf [OK]
-[2026-03-27 12:57:26] [INFO] [regex_extractor] Running regex extraction (2734 chars)
-[2026-03-27 12:57:26] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
-[2026-03-27 12:57:26] [INFO] [llm_extractor] LLM extraction for 'atharva_backend_engineer_resume' (chars=2734)
-[2026-03-27 12:57:26] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:57:37] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=10991ms in_tok=1363 out_tok=2646
-[2026-03-27 12:57:37] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=resume-extraction tokens=4009
-[2026-03-27 12:57:37] [ERROR] [langfuse_tracker] ✗ Langfuse logging error: 'Langfuse' object has no attribute 'trace'
-Traceback (most recent call last):
-  File "/Users/prathamlohia/Resume-Parser/Resume_Pasrser_Engine_POC/utils/langfuse_tracker.py", line 104, in track_llm_call
-    trace = client.trace(
-AttributeError: 'Langfuse' object has no attribute 'trace'
-[2026-03-27 12:57:37] [INFO] [github_analyzer] Fetching GitHub profile for: AtharvaBagade23
-[2026-03-27 12:57:38] [INFO] [github_analyzer] GitHub done: repos=20 stars=9 score=55.0
-[2026-03-27 12:57:38] [INFO] [leetcode_analyzer] Fetching LeetCode stats for: abagade26
-[2026-03-27 12:57:39] [INFO] [leetcode_analyzer] LeetCode done: E=49 M=12 H=0 score=14.6
-[2026-03-27 12:57:39] [INFO] [embedding_matcher] Computing embedding similarity…
-[2026-03-27 12:57:39] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
-[2026-03-27 12:57:45] [INFO] [embedding_matcher] Model loaded ✓
-[2026-03-27 12:57:46] [INFO] [embedding_matcher] Embedding similarity: 0.6640
-[2026-03-27 12:57:46] [INFO] [embedding_matcher] Skill match: 9/21 = 42.9%
-[2026-03-27 12:57:46] [INFO] [app] FT Exp LLM: 0
-[2026-03-27 12:57:46] [INFO] [app] FT Exp Regex: 0.0
-[2026-03-27 12:57:46] [INFO] [ats_scorer] ATS fresher-mode: 62.9 | sim=0.66 skill=42.9% proj=100.0 gh=55.0 ft=0.0y intern=0mo eff=0.00y
-[2026-03-27 12:57:46] [INFO] [app]   ATS score: 62.9 (mode=fresher)
-[2026-03-27 12:57:46] [INFO] [app] Starting: resume_devops_engineer.pdf
-[2026-03-27 12:57:46] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=713 pages=1 two_col=False
-[2026-03-27 12:57:46] [INFO] [app]   Parsed (Single-column, 1 pages, 713 chars) via pymupdf [OK]
-[2026-03-27 12:57:46] [INFO] [regex_extractor] Running regex extraction (713 chars)
-[2026-03-27 12:57:46] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=10
-[2026-03-27 12:57:46] [INFO] [llm_extractor] LLM extraction for 'resume_devops_engineer' (chars=713)
-[2026-03-27 12:57:46] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:57:52] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=6000ms in_tok=950 out_tok=1530
-[2026-03-27 12:57:52] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=resume-extraction tokens=2480
-[2026-03-27 12:57:52] [ERROR] [langfuse_tracker] ✗ Langfuse logging error: 'Langfuse' object has no attribute 'trace'
-Traceback (most recent call last):
-  File "/Users/prathamlohia/Resume-Parser/Resume_Pasrser_Engine_POC/utils/langfuse_tracker.py", line 104, in track_llm_call
-    trace = client.trace(
-AttributeError: 'Langfuse' object has no attribute 'trace'
-[2026-03-27 12:57:52] [INFO] [embedding_matcher] Computing embedding similarity…
-[2026-03-27 12:57:52] [INFO] [embedding_matcher] Embedding similarity: 0.5124
-[2026-03-27 12:57:52] [INFO] [embedding_matcher] Skill match: 1/21 = 4.8%
-[2026-03-27 12:57:52] [INFO] [app] FT Exp LLM: 4
-[2026-03-27 12:57:52] [INFO] [app] FT Exp Regex: 0.0
-[2026-03-27 12:57:52] [INFO] [ats_scorer] ATS standard-mode: 35.7 | sim=0.51 skill=4.8% proj=60.0 gh=0.0 ft=4.0y intern=0mo eff=4.00y
-[2026-03-27 12:57:52] [INFO] [app]   ATS score: 35.7 (mode=standard)
-[2026-03-27 12:58:00] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 12:58:03] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=3666ms in_tok=289 out_tok=786
-[2026-03-27 12:58:03] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=candidate-comparison tokens=1075
-[2026-03-27 12:58:03] [ERROR] [langfuse_tracker] ✗ Langfuse logging error: 'Langfuse' object has no attribute 'trace'
-Traceback (most recent call last):
-  File "/Users/prathamlohia/Resume-Parser/Resume_Pasrser_Engine_POC/utils/langfuse_tracker.py", line 104, in track_llm_call
-    trace = client.trace(
-AttributeError: 'Langfuse' object has no attribute 'trace'
-[2026-03-27 12:58:03] [INFO] [app] LLM comparison generated
-[2026-03-27 13:01:36] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 13:01:36] [INFO] [langfuse_tracker] ✓ Langfuse v3.7.0 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 13:02:35] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 13:02:35] [INFO] [langfuse_tracker] ✓ Langfuse v3.7.0 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 13:02:35] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=test-trace gen=test-generation tokens=30
-[2026-03-27 13:02:35] [ERROR] [langfuse_tracker] ✗ Langfuse logging error: end() got an unexpected keyword argument 'output'
-Traceback (most recent call last):
-  File "/Users/prathamlohia/Resume-Parser/Resume_Pasrser_Engine_POC/utils/langfuse_tracker.py", line 111, in track_llm_call
-    generation.end(
-TypeError: end() got an unexpected keyword argument 'output'
-[2026-03-27 13:03:07] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 13:03:07] [INFO] [langfuse_tracker] ✓ Langfuse v3.7.0 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 13:03:07] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=test-trace gen=test-generation tokens=30
-[2026-03-27 13:03:08] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=test-trace gen=test-generation tokens=30 cost=$0.000050
-[2026-03-27 13:03:33] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 13:03:33] [INFO] [langfuse_tracker] ✓ Langfuse v3.7.0 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 13:04:11] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
-[2026-03-27 13:04:11] [INFO] [langfuse_tracker] ✓ Langfuse v3.7.0 tracker initialised → https://cloud.langfuse.com
-[2026-03-27 13:04:28] [INFO] [llm_extractor] LLM JD extraction (chars=2367)
-[2026-03-27 13:04:28] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 13:04:34] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=5760ms in_tok=917 out_tok=1378
-[2026-03-27 13:04:34] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=jd-extraction tokens=2295
-[2026-03-27 13:04:34] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=resume-parser gen=jd-extraction tokens=2295 cost=$0.003673
-[2026-03-27 13:04:34] [INFO] [app] JD parsed successfully
-[2026-03-27 13:04:43] [INFO] [app] Starting: atharva_backend_engineer_resume.pdf
-[2026-03-27 13:04:43] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=2734 pages=2 two_col=False
-[2026-03-27 13:04:43] [INFO] [app]   Parsed (Single-column, 2 pages, 2734 chars) via pymupdf [OK]
-[2026-03-27 13:04:43] [INFO] [regex_extractor] Running regex extraction (2734 chars)
-[2026-03-27 13:04:43] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
-[2026-03-27 13:04:43] [INFO] [llm_extractor] LLM extraction for 'atharva_backend_engineer_resume' (chars=2734)
-[2026-03-27 13:04:43] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 13:04:53] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=10125ms in_tok=1363 out_tok=2036
-[2026-03-27 13:04:53] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=resume-extraction tokens=3399
-[2026-03-27 13:04:53] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=resume-parser gen=resume-extraction tokens=3399 cost=$0.005435
-[2026-03-27 13:04:53] [INFO] [github_analyzer] Fetching GitHub profile for: AtharvaBagade23
-[2026-03-27 13:04:54] [INFO] [github_analyzer] GitHub done: repos=20 stars=9 score=55.0
-[2026-03-27 13:04:54] [INFO] [leetcode_analyzer] Fetching LeetCode stats for: abagade26
-[2026-03-27 13:04:55] [INFO] [leetcode_analyzer] LeetCode done: E=49 M=12 H=0 score=14.6
-[2026-03-27 13:04:55] [INFO] [embedding_matcher] Computing embedding similarity…
-[2026-03-27 13:04:55] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
-[2026-03-27 13:05:02] [INFO] [embedding_matcher] Model loaded ✓
-[2026-03-27 13:05:02] [INFO] [embedding_matcher] Embedding similarity: 0.6640
-[2026-03-27 13:05:02] [INFO] [embedding_matcher] Skill match: 9/23 = 39.1%
-[2026-03-27 13:05:02] [INFO] [app] FT Exp LLM: 0
-[2026-03-27 13:05:02] [INFO] [app] FT Exp Regex: 0.0
-[2026-03-27 13:05:02] [INFO] [ats_scorer] ATS fresher-mode: 61.8 | sim=0.66 skill=39.1% proj=100.0 gh=55.0 ft=0.0y intern=0mo eff=0.00y
-[2026-03-27 13:05:02] [INFO] [app]   ATS score: 61.8 (mode=fresher)
-[2026-03-27 13:05:02] [INFO] [app] Starting: Atharva_Bagade_Resume_Zensar.pdf
-[2026-03-27 13:05:02] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=4758 pages=1 two_col=True
-[2026-03-27 13:05:02] [INFO] [app]   Parsed (Two-column, 1 pages, 4758 chars) via pymupdf [OK]
-[2026-03-27 13:05:02] [INFO] [regex_extractor] Running regex extraction (4758 chars)
-[2026-03-27 13:05:02] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=41
-[2026-03-27 13:05:02] [INFO] [llm_extractor] LLM extraction for 'Atharva_Bagade_Resume_Zensar' (chars=4758)
-[2026-03-27 13:05:02] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 13:05:15] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=13507ms in_tok=2059 out_tok=2653
-[2026-03-27 13:05:15] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=resume-extraction tokens=4712
-[2026-03-27 13:05:15] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=resume-parser gen=resume-extraction tokens=4712 cost=$0.007365
-[2026-03-27 13:05:15] [INFO] [github_analyzer] Fetching GitHub profile for: AtharvaBagade23
-[2026-03-27 13:05:17] [INFO] [github_analyzer] GitHub done: repos=20 stars=9 score=55.0
-[2026-03-27 13:05:17] [INFO] [leetcode_analyzer] Fetching LeetCode stats for: abagade26
-[2026-03-27 13:05:17] [INFO] [leetcode_analyzer] LeetCode done: E=49 M=12 H=0 score=14.6
-[2026-03-27 13:05:17] [INFO] [embedding_matcher] Computing embedding similarity…
-[2026-03-27 13:05:17] [INFO] [embedding_matcher] Embedding similarity: 0.5719
-[2026-03-27 13:05:17] [INFO] [embedding_matcher] Skill match: 16/23 = 69.6%
-[2026-03-27 13:05:17] [INFO] [app] FT Exp LLM: 0
-[2026-03-27 13:05:17] [INFO] [app] FT Exp Regex: 0.0
-[2026-03-27 13:05:17] [INFO] [ats_scorer] ATS fresher-mode: 67.2 | sim=0.57 skill=69.6% proj=100.0 gh=55.0 ft=0.0y intern=0mo eff=0.00y
-[2026-03-27 13:05:17] [INFO] [app]   ATS score: 67.2 (mode=fresher)
-[2026-03-27 13:05:25] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
-[2026-03-27 13:05:27] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=2880ms in_tok=295 out_tok=594
-[2026-03-27 13:05:27] [INFO] [langfuse_tracker] track_llm_call | enabled=True client=True | trace=resume-parser gen=candidate-comparison tokens=889
-[2026-03-27 13:05:28] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=resume-parser gen=candidate-comparison tokens=889 cost=$0.001483
-[2026-03-27 13:05:28] [INFO] [app] LLM comparison generated
+[2026-03-27 12:58:15] [INFO] [app] Starting: PrasadLonare_Resume_N 2.pdf
+[2026-03-27 12:58:15] [WARNING] [pdf_parser] Stage 1 (PyMuPDF) error: No module named 'fitz'
+[2026-03-27 12:58:15] [INFO] [pdf_parser] Stage 2 (pdfplumber) success: chars=2697
+[2026-03-27 12:58:15] [INFO] [app]   Parsed (Single-column, 1 pages, 2697 chars) via pdfplumber [OK]
+[2026-03-27 12:58:15] [INFO] [regex_extractor] Running regex extraction (2697 chars)
+[2026-03-27 12:58:15] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=24
+[2026-03-27 12:58:15] [INFO] [llm_extractor] LLM extraction for 'PrasadLonare_Resume_N 2' (chars=2697)
+[2026-03-27 12:58:15] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:58:45] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=30001ms in_tok=1444 out_tok=2908
+[2026-03-27 12:58:46] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=4352 cost=$0.032690
+[2026-03-27 12:58:46] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 12:58:46] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
+[2026-03-27 12:58:53] [INFO] [embedding_matcher] Model loaded ✓
+[2026-03-27 12:58:53] [INFO] [embedding_matcher] Embedding similarity: 0.5716
+[2026-03-27 12:58:53] [INFO] [embedding_matcher] Skill match: 8/22 = 36.4%
+[2026-03-27 12:58:53] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 12:58:53] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 12:58:53] [INFO] [ats_scorer] ATS fresher-mode: 45.8 | sim=0.57 skill=36.4% proj=60.0 gh=0.0 ft=0.0y intern=0mo eff=0.00y
+[2026-03-27 12:58:53] [INFO] [app]   ATS score: 45.8 (mode=fresher)
+[2026-03-27 12:58:53] [INFO] [app] Starting: Resume_Latest_.pdf
+[2026-03-27 12:58:53] [WARNING] [pdf_parser] Stage 1 (PyMuPDF) error: No module named 'fitz'
+[2026-03-27 12:58:53] [INFO] [pdf_parser] Stage 2 (pdfplumber) success: chars=3557
+[2026-03-27 12:58:53] [INFO] [app]   Parsed (Single-column, 1 pages, 3557 chars) via pdfplumber [OK]
+[2026-03-27 12:58:53] [INFO] [regex_extractor] Running regex extraction (3557 chars)
+[2026-03-27 12:58:53] [INFO] [regex_extractor] Regex done → type=fresher ft=0y intern=0mo eff=0y skills=28
+[2026-03-27 12:58:53] [INFO] [llm_extractor] LLM extraction for 'Resume_Latest_' (chars=3557)
+[2026-03-27 12:58:53] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:59:23] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=30115ms in_tok=1557 out_tok=2360
+[2026-03-27 12:59:24] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=3917 cost=$0.027492
+[2026-03-27 12:59:24] [INFO] [github_analyzer] Fetching GitHub profile for: AayushKulkarni36
+[2026-03-27 12:59:25] [INFO] [github_analyzer] GitHub done: repos=14 stars=5 score=35.5
+[2026-03-27 12:59:25] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 12:59:25] [INFO] [embedding_matcher] Embedding similarity: 0.5779
+[2026-03-27 12:59:26] [INFO] [embedding_matcher] Skill match: 9/22 = 40.9%
+[2026-03-27 12:59:26] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 12:59:26] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 12:59:26] [INFO] [ats_scorer] ATS fresher-mode: 57.2 | sim=0.58 skill=40.9% proj=100.0 gh=35.5 ft=0.0y intern=4mo eff=0.10y
+[2026-03-27 12:59:26] [INFO] [app]   ATS score: 57.2 (mode=fresher)
+[2026-03-27 12:59:26] [INFO] [app] Starting: Sahil Kulkarni resume.pdf
+[2026-03-27 12:59:26] [WARNING] [pdf_parser] Stage 1 (PyMuPDF) error: No module named 'fitz'
+[2026-03-27 12:59:26] [INFO] [pdf_parser] Stage 2 (pdfplumber) success: chars=2284
+[2026-03-27 12:59:26] [INFO] [app]   Parsed (Single-column, 1 pages, 2284 chars) via pdfplumber [OK]
+[2026-03-27 12:59:26] [INFO] [regex_extractor] Running regex extraction (2284 chars)
+[2026-03-27 12:59:26] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
+[2026-03-27 12:59:26] [INFO] [llm_extractor] LLM extraction for 'Sahil Kulkarni resume' (chars=2284)
+[2026-03-27 12:59:26] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 12:59:47] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=21129ms in_tok=1351 out_tok=1954
+[2026-03-27 12:59:48] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=3305 cost=$0.022917
+[2026-03-27 12:59:48] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 12:59:48] [INFO] [embedding_matcher] Embedding similarity: 0.6167
+[2026-03-27 12:59:48] [INFO] [embedding_matcher] Skill match: 14/22 = 63.6%
+[2026-03-27 12:59:48] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 12:59:48] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 12:59:48] [INFO] [ats_scorer] ATS fresher-mode: 63.7 | sim=0.62 skill=63.6% proj=100.0 gh=0.0 ft=0.0y intern=0mo eff=0.00y
+[2026-03-27 12:59:48] [INFO] [app]   ATS score: 63.7 (mode=fresher)
+[2026-03-27 13:01:00] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 13:01:16] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=15362ms in_tok=324 out_tok=1001
+[2026-03-27 13:01:17] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=candidate-comparison tokens=1325 cost=$0.010820
+[2026-03-27 13:01:17] [INFO] [app] LLM comparison generated
+[2026-03-27 14:26:59] [INFO] [langfuse_tracker] Langfuse v4 tracker initialised → https://cloud.langfuse.com
+[2026-03-27 14:27:23] [INFO] [llm_extractor] LLM JD extraction (chars=1905)
+[2026-03-27 14:27:23] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 14:27:37] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=13510ms in_tok=680 out_tok=1329
+[2026-03-27 14:27:38] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=jd-extraction tokens=2009 cost=$0.014990
+[2026-03-27 14:27:38] [INFO] [app] JD parsed successfully
+[2026-03-27 14:27:49] [INFO] [app] Starting: Sahil Kulkarni resume.pdf
+[2026-03-27 14:27:49] [WARNING] [pdf_parser] Stage 1 (PyMuPDF) error: No module named 'fitz'
+[2026-03-27 14:27:49] [INFO] [pdf_parser] Stage 2 (pdfplumber) success: chars=2284
+[2026-03-27 14:27:49] [INFO] [app]   Parsed (Single-column, 1 pages, 2284 chars) via pdfplumber [OK]
+[2026-03-27 14:27:49] [INFO] [regex_extractor] Running regex extraction (2284 chars)
+[2026-03-27 14:27:49] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
+[2026-03-27 14:27:49] [INFO] [llm_extractor] LLM extraction for 'Sahil Kulkarni resume' (chars=2284)
+[2026-03-27 14:27:49] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 14:28:10] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=20109ms in_tok=1351 out_tok=2104
+[2026-03-27 14:28:11] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=3455 cost=$0.024417
+[2026-03-27 14:28:11] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 14:28:11] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
+[2026-03-27 14:28:17] [INFO] [embedding_matcher] Model loaded ✓
+[2026-03-27 14:28:17] [INFO] [embedding_matcher] Embedding similarity: 0.6167
+[2026-03-27 14:28:17] [INFO] [embedding_matcher] Skill match: 14/23 = 60.9%
+[2026-03-27 14:28:17] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 14:28:17] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 14:28:17] [INFO] [ats_scorer] ATS fresher-mode: 62.9 | sim=0.62 skill=60.9% proj=100.0 gh=0.0 ft=0.0y intern=0mo eff=0.00y
+[2026-03-27 14:28:17] [INFO] [app]   ATS score: 62.9 (mode=fresher)
+[2026-03-27 14:32:41] [INFO] [llm_extractor] LLM JD extraction (chars=1752)
+[2026-03-27 14:32:41] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 14:32:53] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=11925ms in_tok=641 out_tok=1206
+[2026-03-27 14:32:55] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=jd-extraction tokens=1847 cost=$0.013662
+[2026-03-27 14:32:55] [INFO] [app] JD parsed successfully
+[2026-03-27 14:33:16] [INFO] [app] Starting: Sahil Kulkarni resume.pdf
+[2026-03-27 14:33:17] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=2668 pages=1 two_col=False links=9
+[2026-03-27 14:33:17] [INFO] [app]   Parsed (Single-column, 1 pages, 2668 chars) via pymupdf [OK]
+[2026-03-27 14:33:17] [INFO] [regex_extractor] Running regex extraction (2668 chars)
+[2026-03-27 14:33:17] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
+[2026-03-27 14:33:17] [INFO] [llm_extractor] LLM extraction for 'Sahil Kulkarni resume' (chars=2668)
+[2026-03-27 14:33:17] [INFO] [llm_extractor] Using Ollama Cloud at https://ollama.com
+[2026-03-27 14:33:51] [INFO] [llm_extractor] LLM call done | model=gpt-oss:120b-cloud latency=34157ms in_tok=1507 out_tok=2940
+[2026-03-27 14:33:52] [INFO] [langfuse_tracker] Langfuse logged | trace=resume-parser gen=resume-extraction tokens=4447 cost=$0.033168
+[2026-03-27 14:33:52] [INFO] [github_analyzer] Fetching GitHub profile for: SahilKulkarni10
+[2026-03-27 14:33:55] [INFO] [github_analyzer] GitHub done: repos=40 stars=8 score=95.5
+[2026-03-27 14:33:55] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-27 14:33:55] [INFO] [embedding_matcher] Embedding similarity: 0.4992
+[2026-03-27 14:33:55] [INFO] [embedding_matcher] Skill match: 13/22 = 59.1%
+[2026-03-27 14:33:55] [INFO] [app] FT Exp LLM: 0
+[2026-03-27 14:33:55] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-27 14:33:55] [INFO] [ats_scorer] ATS fresher-mode: 62.5 | sim=0.50 skill=59.1% proj=100.0 gh=95.5 ft=0.0y intern=0mo eff=0.00y
+[2026-03-27 14:33:55] [INFO] [app]   ATS score: 62.5 (mode=fresher)

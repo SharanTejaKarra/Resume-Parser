@@ -44,7 +44,7 @@ def render_tab_jd(log):
         c3.metric("Employment",   jd.get("employment_type", "—"))
 
         col_req, col_pref = st.columns(2)
-        with col_req:
+        '''with col_req:
             st.write("**Required Skills**")
             for s in safe_list(jd.get("required_skills")):
                 st.write(f"Required: {s}")
@@ -52,7 +52,17 @@ def render_tab_jd(log):
         with col_pref:
             st.write("**Preferred Skills**")
             for s in safe_list(jd.get("preferred_skills")):
-                st.write(f"Preferred: {s}")
+                st.write(f"Preferred: {s}")'''
+
+        with col_req:
+            st.write("**Required Skills**")
+            for s in safe_list(jd.get("required_skills")):
+                st.markdown(f"- {s}")
+
+        with col_pref:
+            st.write("**Preferred Skills**")
+            for s in safe_list(jd.get("preferred_skills")):
+                st.markdown(f"- {s}")
 
         with st.expander("Full JD JSON"):
             st.json(jd)
