@@ -1,6 +1,6 @@
 """
 utils/langfuse_tracker.py  –  Langfuse observability wrapper
-Compatible with langfuse v4.x (new SDK).
+Compatible with langfuse v3.7.0+ SDK.
 Tracks: prompt, response, token usage, estimated cost, latency.
 """
 import os
@@ -13,11 +13,9 @@ log = get_logger("langfuse_tracker")
 # ── Try to import Langfuse; fail gracefully ────────────────────────────────────
 try:
     from langfuse import Langfuse
-    from langfuse.decorators import observe
     _LF_AVAILABLE = True
 except ImportError:
     _LF_AVAILABLE = False
-    log.warning("langfuse not installed – observability disabled")
 
 # ── Cost table (USD per 1 K tokens) – approximate ─────────────────────────────
 MODEL_COST_PER_1K: Dict[str, Dict[str, float]] = {
@@ -31,18 +29,24 @@ MODEL_COST_PER_1K: Dict[str, Dict[str, float]] = {
 
 
 class LangfuseTracker:
-    """Thin wrapper around Langfuse v4 SDK for structured LLM call tracking."""
+    """Thin wrapper around Langfuse v3.7.0 SDK for structured LLM call tracking."""
 
     def __init__(self) -> None:
         self._client: Optional[Any] = None
         self.enabled: bool = False
 
         if not _LF_AVAILABLE:
+            log.warning("Langfuse SDK not installed")
             return
 
         pk   = os.getenv("LANGFUSE_PUBLIC_KEY", "")
         sk   = os.getenv("LANGFUSE_SECRET_KEY", "")
         host = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+
+        # Debug: log key info (masked)
+        pk_masked = pk[:10] + "..." if pk else "NOT_SET"
+        sk_masked = sk[:10] + "..." if sk else "NOT_SET"
+        log.info("Langfuse init: pk=%s sk=%s host=%s", pk_masked, sk_masked, host)
 
         if pk and sk and not pk.startswith("pk-lf-your"):
             try:
@@ -52,11 +56,11 @@ class LangfuseTracker:
                     host=host,
                 )
                 self.enabled = True
-                log.info("Langfuse v4 tracker initialised → %s", host)
+                log.info("✓ Langfuse v3.7.0 tracker initialised → %s", host)
             except Exception as exc:
-                log.warning("Langfuse init failed: %s", exc)
+                log.error("✗ Langfuse init failed: %s", exc, exc_info=True)
         else:
-            log.info("Langfuse keys not configured – tracking disabled (local mode)")
+            log.warning("Langfuse keys not configured – tracking disabled (local mode)")
 
     # ──────────────────────────────────────────────────────────────────────────
     def track_llm_call(
@@ -71,8 +75,7 @@ class LangfuseTracker:
         metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
-        Record an LLM generation in Langfuse (v4) and return a summary dict
-        that is stored in Streamlit session state for the observability UI.
+        Record an LLM generation in Langfuse v3.x using the correct API.
         """
         cost = self._estimate_cost(model, input_tokens, output_tokens)
 
@@ -89,34 +92,41 @@ class LangfuseTracker:
             "metadata":       metadata or {},
         }
 
+        log.info("track_llm_call | enabled=%s client=%s | trace=%s gen=%s tokens=%d",
+                 self.enabled, self._client is not None, trace_name, generation_name, 
+                 input_tokens + output_tokens)
+
         if self.enabled and self._client is not None:
-            client = self._client   # local var so type-checkers are happy
+            client = self._client
             try:
-                # ── Langfuse v4 low-level API ───────────────────────────────
-                trace = client.trace(
-                    name=trace_name,
-                    metadata=metadata or {},
-                )
-                trace.generation(
+                # ── Langfuse v3.7.0 API uses start_generation ────────────────
+                generation = client.start_generation(
                     name=generation_name,
                     model=model,
                     input=prompt,
                     output=response,
-                    usage={
+                    usage_details={
                         "input":  input_tokens,
                         "output": output_tokens,
-                        "unit":   "TOKENS",
                     },
-                    metadata={"cost_usd": cost, **(metadata or {})},
+                    cost_details={"cost_usd": cost},
+                    metadata={"trace_name": trace_name, **(metadata or {})},
                 )
+                
+                # Mark generation as complete
+                generation.end()
+                
                 client.flush()
                 log.info(
-                    "Langfuse logged | trace=%s gen=%s tokens=%d cost=$%.6f",
+                    "✓ Langfuse logged | trace=%s gen=%s tokens=%d cost=$%.6f",
                     trace_name, generation_name,
                     input_tokens + output_tokens, cost,
                 )
             except Exception as exc:
-                log.warning("Langfuse logging error: %s", exc)
+                log.error("✗ Langfuse logging error: %s", exc, exc_info=True)
+        else:
+            log.debug("Langfuse tracking disabled (enabled=%s client=%s)", 
+                     self.enabled, self._client is not None)
 
         return summary
 
