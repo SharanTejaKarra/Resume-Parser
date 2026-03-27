@@ -48,14 +48,14 @@ def _experience_score(
 ) -> float:
     """
     Compute experience score 0-1 using weighted model.
-    Internships count at 0.3× weight.
+    Internships count at 1.0× weight (same as full-time).
     Students who only have internships are not penalized.
     """
     if is_student and full_time_years < 1:
         # For students: experience score = 1.0 (not penalized)
         return 1.0
 
-    intern_weighted = (internship_months / 12.0) * 0.3
+    intern_weighted = (internship_months / 12.0) * 1.0
     effective       = full_time_years + intern_weighted
     if min_required <= 0:
         min_required = 2.0
@@ -124,7 +124,7 @@ def compute_ats_score(
             "experience":    0.05,
         }
 
-    intern_weighted_yrs = round(float(internship_months) / 12.0 * 0.3, 2)
+    intern_weighted_yrs = round(float(internship_months) / 12.0 * 1.0, 2)
     effective_exp       = round(float(full_time_exp_years) + intern_weighted_yrs, 2)
     ats                 = round(float(weighted * 100), 1)
 
