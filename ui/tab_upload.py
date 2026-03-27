@@ -8,6 +8,14 @@ from scoring.embedding_matcher import compute_jd_similarity, compute_skill_match
 from scoring.ats_scorer import compute_ats_score
 from ui.utils import ui_log, add_lf_record, safe_list, parse_uploaded_file, build_candidate_dict
 
+def safe_float(val, default=0.0):
+    try:
+        if val is None:
+            return default
+        return float(val)
+    except (TypeError, ValueError):
+        return default
+
 def render_tab_upload(log, extract_pdf, extract_docx):
     """Render the Resume Upload & Processing tab."""
     st.header("Step 2 — Upload Resumes")
@@ -89,8 +97,19 @@ def render_tab_upload(log, extract_pdf, extract_docx):
                     skill_pct, matched, missing = compute_skill_match(all_skills, jd_req_skills)
 
                     # 8. ATS Score
-                    ft_exp = float(llm_data.get("full_time_experience_years") if llm_data.get("full_time_experience_years") is not None else regex.get("full_time_experience_years", 0))
-                    i_months = float(llm_data.get("internship_months") if llm_data.get("internship_months") is not None else regex.get("internship_months", 0))
+                    ui_log(f"FT Exp LLM: {llm_data.get('full_time_experience_years')}", log)
+                    ui_log(f"FT Exp Regex: {regex.get('full_time_experience_years')}", log)
+
+                    ft_exp = max(
+                        safe_float(llm_data.get("full_time_experience_years")),
+                        safe_float(regex.get("full_time_experience_years"))
+                    )
+
+                    i_months = max(
+                        safe_float(llm_data.get("internship_months")),
+                        safe_float(regex.get("internship_months"))
+                    )
+                    
                     is_stud = bool(llm_data.get("is_student") if llm_data.get("is_student") is not None else regex.get("is_student", False))
                     ctype = llm_data.get("candidate_type") or regex.get("candidate_type", "fresher")
 
@@ -101,9 +120,9 @@ def render_tab_upload(log, extract_pdf, extract_docx):
                         internship_months=i_months,
                         is_student=is_stud,
                         candidate_type=ctype,
-                        min_exp_required=float(jd.get("min_experience_years", 2)),
-                        github_score=float(gh.get("github_score", 0)),
-                        leetcode_score=float(lc.get("leetcode_score", 0)),
+                        min_exp_required=safe_float(jd.get("min_experience_years", 2)),
+                        github_score=safe_float(gh.get("github_score", 0)),
+                        leetcode_score=safe_float(lc.get("leetcode_score", 0)),
                         projects=safe_list(llm_data.get("projects")),
                     )
 
