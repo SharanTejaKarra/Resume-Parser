@@ -195,6 +195,6 @@ def render_candidate_expander(c):
             lc_d = c["leetcode"]
             st.write(f"**LeetCode:** [{lc_d['username']}]({lc_d['profile_url']}) · Easy: {lc_d['easy_solved']} Medium: {lc_d['medium_solved']} Hard: {lc_d['hard_solved']} · Score: **{lc_d['leetcode_score']}**")
 
-        with st.expander("Full Extracted Data"):
+        if st.checkbox("Show Full Extracted Data", key=f"raw_data_{c['name']}"):
             clean = {k: v for k, v in c.items() if k not in ["github", "leetcode", "ats_breakdown"]}
             st.json(clean)
