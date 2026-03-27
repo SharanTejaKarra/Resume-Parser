@@ -35,7 +35,7 @@ def render_tab_upload(log, extract_pdf, extract_docx):
     enable_lc = st.session_state.get("sidebar_lc", True)
 
     if uploaded_files:
-        if st.button("Process All Resumes", use_container_width=True):
+        if st.button("Process All Resumes", width="stretch"):
             jd     = st.session_state.jd_data
             jd_txt = st.session_state.jd_text
 

@@ -35,7 +35,7 @@ def render_ats_bar_chart(ranked):
         margin=dict(t=60, b=20, l=20, r=20),
         height=380,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 def render_skills_radar(ranked):
     """Render the skills radar chart for top 3 candidates."""
@@ -73,7 +73,7 @@ def render_skills_radar(ranked):
         height=420,
         margin=dict(t=40, b=20),
     )
-    st.plotly_chart(radar_fig, use_container_width=True)
+    st.plotly_chart(radar_fig, width="stretch")
 
 def render_candidate_row(c, badge, color):
     """Render a single candidate ranking card."""
@@ -82,7 +82,7 @@ def render_candidate_row(c, badge, color):
         with col_rank:
             st.subheader(badge)
         with col_score:
-            st.subheader(f":{color}[{c['ats_score']}]")
+            st.markdown(f"### <span style='color:{color}'>{c['ats_score']}</span>", unsafe_allow_html=True)
         with col_info:
             st.write(f"**{c['name']}**")
             st.caption(f"{c['email'] or '—'} · {c['total_experience_years']} yrs exp")

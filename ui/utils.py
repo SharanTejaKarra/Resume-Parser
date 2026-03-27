@@ -3,8 +3,14 @@ import traceback
 import streamlit as st
 from typing import Dict, Any, List, Optional
 
-# Constants
-RANK_BADGES = ["1st", "2nd", "3rd"] + ["-"] * 20
+def get_ordinal(n: int) -> str:
+    """Return the ordinal string for a rank number (1st, 2nd, etc)."""
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f"{n}{suffix}"
+
 
 def ui_log(msg: str, logger):
     """Log to session state and terminal."""

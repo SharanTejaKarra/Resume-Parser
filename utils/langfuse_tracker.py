@@ -34,14 +34,24 @@ class LangfuseTracker:
     def __init__(self) -> None:
         self._client: Optional[Any] = None
         self.enabled: bool = False
+        self._initialize()
 
+    def reinit(self) -> None:
+        """Force re-read of env and re-init (useful after .env updates)."""
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        self._initialize()
+
+    def _initialize(self) -> None:
+        """Internal initialization logic compatible with v2/v3/v4 SDK."""
         if not _LF_AVAILABLE:
             log.warning("Langfuse SDK not installed")
             return
 
         pk   = os.getenv("LANGFUSE_PUBLIC_KEY", "")
         sk   = os.getenv("LANGFUSE_SECRET_KEY", "")
-        host = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+        # Support both HOST and BASE_URL
+        host = os.getenv("LANGFUSE_HOST") or os.getenv("LANGFUSE_BASE_URL") or "https://cloud.langfuse.com"
 
         # Debug: log key info (masked)
         pk_masked = pk[:10] + "..." if pk else "NOT_SET"
@@ -56,11 +66,14 @@ class LangfuseTracker:
                     host=host,
                 )
                 self.enabled = True
-                log.info("✓ Langfuse v3.7.0 tracker initialised → %s", host)
+                log.info("✓ Langfuse SDK tracker initialised → %s", host)
             except Exception as exc:
+                self.enabled = False
                 log.error("✗ Langfuse init failed: %s", exc, exc_info=True)
         else:
+            self.enabled = False
             log.warning("Langfuse keys not configured – tracking disabled (local mode)")
+
 
     # ──────────────────────────────────────────────────────────────────────────
     def track_llm_call(
@@ -99,22 +112,28 @@ class LangfuseTracker:
         if self.enabled and self._client is not None:
             client = self._client
             try:
-                # ── Langfuse v3.7.0 API uses start_generation ────────────────
-                generation = client.start_generation(
-                    name=generation_name,
-                    model=model,
-                    input=prompt,
-                    output=response,
-                    usage_details={
-                        "input":  input_tokens,
-                        "output": output_tokens,
-                    },
-                    cost_details={"cost_usd": cost},
-                    metadata={"trace_name": trace_name, **(metadata or {})},
-                )
-                
-                # Mark generation as complete
-                generation.end()
+                # ── Langfuse v4.x SDK: Use start_as_current_observation ──────
+                # This creates a trace and nested generation.
+                # In the new SDK, 'usage' is passed directly.
+                with client.start_as_current_observation(
+                    name=trace_name,
+                    # trace is the default if no parent exists, but we can't specify as_type="trace"
+                    # directly in start_as_current_observation in some versions.
+                    # We'll just define the generation directly.
+                ) as trace:
+                    with client.start_as_current_observation(
+                        name=generation_name,
+                        as_type="generation",
+                        model=model,
+                        input=prompt,
+                        output=response,
+                        usage={
+                            "input":  input_tokens,
+                            "output": output_tokens,
+                        },
+                        metadata=metadata,
+                    ) as gen:
+                        pass # All data updated via parameters
                 
                 client.flush()
                 log.info(
@@ -129,6 +148,7 @@ class LangfuseTracker:
                      self.enabled, self._client is not None)
 
         return summary
+
 
     # ──────────────────────────────────────────────────────────────────────────
     @staticmethod

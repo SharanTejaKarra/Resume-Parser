@@ -1,5 +1,5 @@
 import streamlit as st
-from ui.utils import get_score_color, RANK_BADGES
+from ui.utils import get_score_color, get_ordinal
 from ui.components import render_ats_bar_chart, render_skills_radar, render_candidate_row
 
 def render_tab_rankings():
@@ -18,8 +18,8 @@ def render_tab_rankings():
         render_skills_radar(ranked)
 
         # 3. Detailed Ranking Table
-        st.subheader("📋 Detailed Ranking Table")
+        st.subheader("Detailed Ranking Table")
         for i, c in enumerate(ranked):
-            badge = RANK_BADGES[i] if i < len(RANK_BADGES) else "🎖️"
+            badge = get_ordinal(i + 1)
             color = get_score_color(c["ats_score"])
             render_candidate_row(c, badge, color)

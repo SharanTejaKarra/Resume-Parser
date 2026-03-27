@@ -18,7 +18,7 @@ def render_tab_jd(log):
 
     col1, col2 = st.columns([1, 4])
     with col1:
-        parse_jd = st.button("Analyse JD", use_container_width=True)
+        parse_jd = st.button("Analyse JD", width="stretch")
 
     if parse_jd and jd_input.strip():
         st.session_state.jd_text = jd_input

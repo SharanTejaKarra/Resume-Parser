@@ -9,9 +9,13 @@ def render_tab_observability():
 
     lf_enabled = lf_tracker.enabled
     if lf_enabled:
-        st.success(f"Langfuse connected -> {os.getenv('LANGFUSE_HOST','')}")
+        host_display = os.getenv("LANGFUSE_HOST") or os.getenv("LANGFUSE_BASE_URL") or "https://cloud.langfuse.com"
+        st.success(f"Langfuse connected -> {host_display}")
     else:
-        st.warning("Langfuse not connected. Add keys in the sidebar to enable cloud tracking.")
+        st.warning("Langfuse not connected. Add keys to .env to enable cloud tracking.")
+        if st.button("Retry Connection"):
+            lf_tracker.reinit()
+            st.rerun()
 
     st.subheader("Session Metrics")
     m1, m2, m3, m4 = st.columns(4)
@@ -37,7 +41,7 @@ def render_tab_observability():
             legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#3d3a2a")),
             xaxis=dict(tickfont=dict(color="#6d6a5a")), yaxis=dict(tickfont=dict(color="#6d6a5a"), gridcolor="#d6d2c4"),
         )
-        st.plotly_chart(tok_fig, use_container_width=True)
+        st.plotly_chart(tok_fig, width="stretch")
 
         # 2. Cost chart
         costs = [r.get("cost_usd", 0) for r in st.session_state.lf_logs]
@@ -52,7 +56,7 @@ def render_tab_observability():
             yaxis=dict(tickformat=".5f", gridcolor="#d6d2c4", tickfont=dict(color="#6d6a5a")),
             xaxis=dict(gridcolor="#d6d2c4", tickfont=dict(color="#6d6a5a")),
         )
-        st.plotly_chart(cost_fig, use_container_width=True)
+        st.plotly_chart(cost_fig, width="stretch")
 
         st.subheader("LLM Call Log")
         for i, r in enumerate(st.session_state.lf_logs):
