@@ -180,7 +180,7 @@ def render_candidate_expander(c):
         col_d.metric("Scoring Mode",  c.get('ats_breakdown', {}).get('scoring_mode', '—').capitalize())
 
         ec1, ec2, ec3 = st.columns(3)
-        ec1.metric("Full-time exp",   f"{c.get('full_time_exp_years', 0):.1f} yrs")
+        ec1.metric("Full-time exp",   f"{c.get('full_time_exp_years', 0):.2f} yrs")
         ec2.metric("Internship",       f"{c.get('internship_months', 0):.0f} months")
         ec3.metric("Effective exp",    f"{c.get('effective_exp_years', 0):.2f} yrs")
 
