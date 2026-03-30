@@ -9,6 +9,7 @@ import json
 import os
 import re
 import time
+from datetime import datetime, timezone          # ← ADDED
 from typing import Any, Dict, Optional
 
 from utils.logger import get_logger
@@ -67,7 +68,7 @@ def _chat_ollama(prompt: str, system: str = "", model: Optional[str] = None) -> 
 
     latency_ms = int((time.time() - t0) * 1000)
 
-    # ollama v0.6 returns a Pydantic ChatResponse object
+    # ── ollama v0.6 returns a Pydantic ChatResponse object ────────────────────
     try:
         content = response.message.content  # type: ignore[union-attr]
     except AttributeError:
@@ -173,11 +174,9 @@ def _safe_parse_json(text: str) -> dict:
     """
     Extract valid JSON from LLM response (handles markdown fences, preamble).
     """
-    # Strip markdown code fences
     cleaned = re.sub(r"```(?:json)?", "", text).strip()
     cleaned = cleaned.rstrip("`").strip()
 
-    # Find first complete { ... } block
     match = re.search(r'\{.*\}', cleaned, re.DOTALL)
     if match:
         try:
@@ -185,7 +184,6 @@ def _safe_parse_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    # Try parsing the whole cleaned string
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError:
@@ -282,13 +280,14 @@ def extract_resume_llm(text: str, candidate_name: str = "candidate") -> Dict[str
     Use LLM to semantically extract all resume fields.
     Returns {"data": dict, "langfuse": dict}.
     """
-    # Guard against huge tokens
     truncated = text[:8000]
     prompt    = RESUME_PROMPT_TEMPLATE.format(text=truncated)
 
     log.info("LLM extraction for '%s' (chars=%d)", candidate_name, len(text))
 
+    start  = datetime.now(timezone.utc)          # ← ADDED
     result = _chat(prompt, system=RESUME_SYSTEM)
+    end    = datetime.now(timezone.utc)          # ← ADDED
     parsed = _safe_parse_json(result["content"])
 
     lf_summary = tracker.track_llm_call(
@@ -299,7 +298,9 @@ def extract_resume_llm(text: str, candidate_name: str = "candidate") -> Dict[str
         response        = result["content"],
         input_tokens    = result["input_tokens"],
         output_tokens   = result["output_tokens"],
-        metadata        = {"candidate": candidate_name, "latency_ms": result["latency_ms"]},
+        start_time      = start,                 # ← ADDED
+        end_time        = end,                   # ← ADDED
+        metadata        = {"candidate": candidate_name},
     )
 
     return {"data": parsed, "langfuse": lf_summary}
@@ -344,7 +345,9 @@ def extract_jd_llm(text: str) -> Dict[str, Any]:
 
     log.info("LLM JD extraction (chars=%d)", len(text))
 
+    start  = datetime.now(timezone.utc)          # ← ADDED
     result = _chat(prompt, system=JD_SYSTEM)
+    end    = datetime.now(timezone.utc)          # ← ADDED
     parsed = _safe_parse_json(result["content"])
 
     lf_summary = tracker.track_llm_call(
@@ -355,7 +358,9 @@ def extract_jd_llm(text: str) -> Dict[str, Any]:
         response        = result["content"],
         input_tokens    = result["input_tokens"],
         output_tokens   = result["output_tokens"],
-        metadata        = {"step": "jd_parsing", "latency_ms": result["latency_ms"]},
+        start_time      = start,                 # ← ADDED
+        end_time        = end,                   # ← ADDED
+        metadata        = {"step": "jd_parsing"},
     )
 
     return {"data": parsed, "langfuse": lf_summary}
@@ -408,7 +413,9 @@ def generate_comparison_explanation(
         candidates_summary = "\n".join(lines),
     )
 
+    start  = datetime.now(timezone.utc)          # ← ADDED
     result = _chat(prompt, system=COMPARE_SYSTEM)
+    end    = datetime.now(timezone.utc)          # ← ADDED
 
     lf_summary = tracker.track_llm_call(
         trace_name      = "resume-parser",
@@ -418,10 +425,9 @@ def generate_comparison_explanation(
         response        = result["content"],
         input_tokens    = result["input_tokens"],
         output_tokens   = result["output_tokens"],
-        metadata        = {
-            "num_candidates": len(ranked_results),
-            "latency_ms":     result["latency_ms"],
-        },
+        start_time      = start,                 # ← ADDED
+        end_time        = end,                   # ← ADDED
+        metadata        = {"num_candidates": len(ranked_results)},
     )
 
     return {"explanation": result["content"], "langfuse": lf_summary}

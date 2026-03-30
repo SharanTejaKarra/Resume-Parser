@@ -1,10 +1,10 @@
 """
 utils/langfuse_tracker.py  –  Langfuse observability wrapper
-Compatible with langfuse v3.7.0+ SDK.
+Compatible with langfuse v2.20.0 SDK.
 Tracks: prompt, response, token usage, estimated cost, latency.
 """
 import os
-import time
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from utils.logger import get_logger
 
@@ -13,6 +13,7 @@ log = get_logger("langfuse_tracker")
 # ── Try to import Langfuse; fail gracefully ────────────────────────────────────
 try:
     from langfuse import Langfuse
+    from langfuse.model import ModelUsage   # ← correct import for v2.20.0
     _LF_AVAILABLE = True
 except ImportError:
     _LF_AVAILABLE = False
@@ -29,31 +30,20 @@ MODEL_COST_PER_1K: Dict[str, Dict[str, float]] = {
 
 
 class LangfuseTracker:
-    """Thin wrapper around Langfuse v3.7.0 SDK for structured LLM call tracking."""
+    """Thin wrapper around Langfuse v2.20.0 SDK for structured LLM call tracking."""
 
     def __init__(self) -> None:
         self._client: Optional[Any] = None
         self.enabled: bool = False
-        self._initialize()
 
-    def reinit(self) -> None:
-        """Force re-read of env and re-init (useful after .env updates)."""
-        from dotenv import load_dotenv
-        load_dotenv(override=True)
-        self._initialize()
-
-    def _initialize(self) -> None:
-        """Internal initialization logic compatible with v2/v3/v4 SDK."""
         if not _LF_AVAILABLE:
             log.warning("Langfuse SDK not installed")
             return
 
         pk   = os.getenv("LANGFUSE_PUBLIC_KEY", "")
         sk   = os.getenv("LANGFUSE_SECRET_KEY", "")
-        # Support both HOST and BASE_URL
-        host = os.getenv("LANGFUSE_HOST") or os.getenv("LANGFUSE_BASE_URL") or "https://cloud.langfuse.com"
+        host = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
-        # Debug: log key info (masked)
         pk_masked = pk[:10] + "..." if pk else "NOT_SET"
         sk_masked = sk[:10] + "..." if sk else "NOT_SET"
         log.info("Langfuse init: pk=%s sk=%s host=%s", pk_masked, sk_masked, host)
@@ -66,14 +56,11 @@ class LangfuseTracker:
                     host=host,
                 )
                 self.enabled = True
-                log.info("✓ Langfuse SDK tracker initialised → %s", host)
+                log.info("✓ Langfuse v2.20.0 tracker initialised → %s", host)
             except Exception as exc:
-                self.enabled = False
                 log.error("✗ Langfuse init failed: %s", exc, exc_info=True)
         else:
-            self.enabled = False
             log.warning("Langfuse keys not configured – tracking disabled (local mode)")
-
 
     # ──────────────────────────────────────────────────────────────────────────
     def track_llm_call(
@@ -86,10 +73,18 @@ class LangfuseTracker:
         input_tokens: int = 0,
         output_tokens: int = 0,
         metadata: Optional[Dict[str, Any]] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
-        Record an LLM generation in Langfuse v3.x using the correct API.
+        Record an LLM generation in Langfuse v2.20.0.
+        Uses trace → generation pattern so latency shows correctly.
         """
+        now        = datetime.now(timezone.utc)
+        start_time = start_time or now
+        end_time   = end_time   or now
+        latency_ms = (end_time - start_time).total_seconds() * 1000
+
         cost = self._estimate_cost(model, input_tokens, output_tokens)
 
         summary: Dict[str, Any] = {
@@ -100,58 +95,64 @@ class LangfuseTracker:
             "output_tokens":  output_tokens,
             "total_tokens":   input_tokens + output_tokens,
             "cost_usd":       cost,
+            "latency_ms":     latency_ms,
             "prompt_chars":   len(prompt),
             "response_chars": len(response),
             "metadata":       metadata or {},
         }
 
-        log.info("track_llm_call | enabled=%s client=%s | trace=%s gen=%s tokens=%d",
-                 self.enabled, self._client is not None, trace_name, generation_name, 
-                 input_tokens + output_tokens)
+        log.info(
+            "track_llm_call | enabled=%s | trace=%s gen=%s tokens=%d latency=%.1fms",
+            self.enabled, trace_name, generation_name,
+            input_tokens + output_tokens, latency_ms,
+        )
 
         if self.enabled and self._client is not None:
-            client = self._client
             try:
-                # ── Langfuse v4.x SDK: Use start_as_current_observation ──────
-                # This creates a trace and nested generation.
-                # In the new SDK, 'usage' is passed directly.
-                with client.start_as_current_observation(
+                # ── v2.20.0: trace → generation ───────────────────────────────
+                trace = self._client.trace(
                     name=trace_name,
-                    # trace is the default if no parent exists, but we can't specify as_type="trace"
-                    # directly in start_as_current_observation in some versions.
-                    # We'll just define the generation directly.
-                ) as trace:
-                    with client.start_as_current_observation(
-                        name=generation_name,
-                        as_type="generation",
-                        model=model,
-                        input=prompt,
-                        output=response,
-                        usage_details={
-                            "input":  input_tokens,
-                            "output": output_tokens,
-                        },
-                        cost_details={
-                            "cost": cost,
-                        },
-                        metadata=metadata,
-                    ) as gen:
-                        pass # All data updated via parameters
-                
-                client.flush()
+                    input=prompt,
+                    output=response,
+                    metadata=metadata or {},
+                )
+
+                trace.generation(
+                    name=generation_name,
+                    model=model,
+                    input=prompt,
+                    output=response,
+                    start_time=start_time,
+                    end_time=end_time,
+                    usage=ModelUsage(               # ← TypedDict, pass as dict
+                        unit="TOKENS",
+                        input=input_tokens,
+                        output=output_tokens,
+                        total=input_tokens + output_tokens,
+                        input_cost=cost * 0.5,      # approximate split
+                        output_cost=cost * 0.5,
+                        total_cost=cost,            # ← this shows in Total Cost column
+                    ),
+                    metadata={
+                        "cost_usd":   cost,
+                        "latency_ms": latency_ms,
+                        **(metadata or {}),
+                    },
+                )
+
+                self._client.flush()
                 log.info(
-                    "✓ Langfuse logged | trace=%s gen=%s tokens=%d cost=$%.6f",
+                    "✓ Langfuse logged | trace=%s gen=%s tokens=%d cost=$%.6f latency=%.1fms",
                     trace_name, generation_name,
-                    input_tokens + output_tokens, cost,
+                    input_tokens + output_tokens, cost, latency_ms,
                 )
             except Exception as exc:
                 log.error("✗ Langfuse logging error: %s", exc, exc_info=True)
+                print(f"LANGFUSE ERROR: {exc}")
         else:
-            log.debug("Langfuse tracking disabled (enabled=%s client=%s)", 
-                     self.enabled, self._client is not None)
+            log.debug("Langfuse tracking disabled (enabled=%s)", self.enabled)
 
         return summary
-
 
     # ──────────────────────────────────────────────────────────────────────────
     @staticmethod
@@ -169,5 +170,5 @@ class LangfuseTracker:
                 pass
 
 
-# Singleton instance (re-created when settings are changed from the sidebar)
+# Singleton instance
 tracker = LangfuseTracker()
