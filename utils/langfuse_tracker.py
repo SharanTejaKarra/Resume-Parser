@@ -4,7 +4,6 @@ Compatible with langfuse v2.20.0 SDK.
 Tracks: prompt, response, token usage, estimated cost, latency.
 """
 import os
-import time
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from utils.logger import get_logger
@@ -14,6 +13,7 @@ log = get_logger("langfuse_tracker")
 # ── Try to import Langfuse; fail gracefully ────────────────────────────────────
 try:
     from langfuse import Langfuse
+    from langfuse.model import ModelUsage   # ← correct import for v2.20.0
     _LF_AVAILABLE = True
 except ImportError:
     _LF_AVAILABLE = False
@@ -35,24 +35,14 @@ class LangfuseTracker:
     def __init__(self) -> None:
         self._client: Optional[Any] = None
         self.enabled: bool = False
-        self._initialize()
 
-    def reinit(self) -> None:
-        """Force re-read of env and re-init (useful after .env updates)."""
-        from dotenv import load_dotenv
-        load_dotenv(override=True)
-        self._initialize()
-
-    def _initialize(self) -> None:
-        """Internal initialization logic compatible with v2/v3/v4 SDK."""
         if not _LF_AVAILABLE:
             log.warning("Langfuse SDK not installed")
             return
 
         pk   = os.getenv("LANGFUSE_PUBLIC_KEY", "")
         sk   = os.getenv("LANGFUSE_SECRET_KEY", "")
-        # Support both HOST and BASE_URL
-        host = os.getenv("LANGFUSE_HOST") or os.getenv("LANGFUSE_BASE_URL") or "https://cloud.langfuse.com"
+        host = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
 
         pk_masked = pk[:10] + "..." if pk else "NOT_SET"
         sk_masked = sk[:10] + "..." if sk else "NOT_SET"
@@ -66,15 +56,11 @@ class LangfuseTracker:
                     host=host,
                 )
                 self.enabled = True
-                log.info("✓ Langfuse SDK tracker initialised → %s", host)
                 log.info("✓ Langfuse v2.20.0 tracker initialised → %s", host)
             except Exception as exc:
-                self.enabled = False
                 log.error("✗ Langfuse init failed: %s", exc, exc_info=True)
         else:
-            self.enabled = False
             log.warning("Langfuse keys not configured – tracking disabled (local mode)")
-
 
     # ──────────────────────────────────────────────────────────────────────────
     def track_llm_call(
@@ -92,14 +78,12 @@ class LangfuseTracker:
     ) -> Dict[str, Any]:
         """
         Record an LLM generation in Langfuse v2.20.0.
+        Uses trace → generation pattern so latency shows correctly.
         """
         now        = datetime.now(timezone.utc)
         start_time = start_time or now
         end_time   = end_time   or now
         latency_ms = (end_time - start_time).total_seconds() * 1000
-
-        # ── Convert datetime → int ms (what end() expects) ─────────────────
-        end_time_ms = int(end_time.timestamp() * 1000)
 
         cost = self._estimate_cost(model, input_tokens, output_tokens)
 
@@ -125,55 +109,35 @@ class LangfuseTracker:
 
         if self.enabled and self._client is not None:
             try:
-                # ── Langfuse v4.x SDK: Use start_as_current_observation ──────
-                # This creates a trace and nested generation.
-                # In the new SDK, 'usage' is passed directly.
-                with client.start_as_current_observation(
+                # ── v2.20.0: trace → generation ───────────────────────────────
+                trace = self._client.trace(
                     name=trace_name,
-                    # trace is the default if no parent exists, but we can't specify as_type="trace"
-                    # directly in start_as_current_observation in some versions.
-                    # We'll just define the generation directly.
-                ) as trace:
-                    with client.start_as_current_observation(
-                        name=generation_name,
-                        as_type="generation",
-                        model=model,
-                        input=prompt,
-                        output=response,
-                        usage_details={
-                            "input":  input_tokens,
-                            "output": output_tokens,
-                        },
-                        cost_details={
-                            "cost": cost,
-                        },
-                        metadata=metadata,
-                    ) as gen:
-                        pass # All data updated via parameters
-                
-                client.flush()
-                generation = self._client.start_generation(
+                    input=prompt,
+                    output=response,
+                    metadata=metadata or {},
+                )
+
+                trace.generation(
                     name=generation_name,
                     model=model,
                     input=prompt,
                     output=response,
-                    completion_start_time=start_time,  # ← datetime OK here
-                    usage_details={                     # ← correct key for v2.20.0
-                        "input":  input_tokens,
-                        "output": output_tokens,
-                        "total":  input_tokens + output_tokens,
-                    },
-                    cost_details={                      # ← correct key for v2.20.0
-                        "total": cost,
-                    },
+                    start_time=start_time,
+                    end_time=end_time,
+                    usage=ModelUsage(               # ← TypedDict, pass as dict
+                        unit="TOKENS",
+                        input=input_tokens,
+                        output=output_tokens,
+                        total=input_tokens + output_tokens,
+                        input_cost=cost * 0.5,      # approximate split
+                        output_cost=cost * 0.5,
+                        total_cost=cost,            # ← this shows in Total Cost column
+                    ),
                     metadata={
-                        "trace_name": trace_name,
+                        "cost_usd":   cost,
+                        "latency_ms": latency_ms,
                         **(metadata or {}),
                     },
-                )
-
-                generation.end(
-                    end_time=end_time_ms,              # ← int ms, not datetime
                 )
 
                 self._client.flush()
@@ -189,7 +153,6 @@ class LangfuseTracker:
             log.debug("Langfuse tracking disabled (enabled=%s)", self.enabled)
 
         return summary
-
 
     # ──────────────────────────────────────────────────────────────────────────
     @staticmethod
