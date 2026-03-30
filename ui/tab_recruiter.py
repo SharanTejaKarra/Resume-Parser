@@ -46,10 +46,10 @@ _TIMELINE_ICONS = {
 }
 
 _TIMELINE_COLORS = {
-    "education":  "#60a5fa",
-    "project":    "#34d399",
-    "internship": "#fbbf24",
-    "fulltime":   "#a78bfa",
+    "education":  "#2563eb",  # Darker Blue
+    "project":    "#059669",  # Darker Green
+    "internship": "#d97706",  # Darker Amber
+    "fulltime":   "#7c3aed",  # Darker Purple
 }
 
 
@@ -98,7 +98,7 @@ def _render_timeline_panel():
         st.markdown(
             f'<div style="display:flex;align-items:flex-start;margin-bottom:10px">'
             f'<div style="min-width:60px;font-weight:700;color:{color}">{event["year"]}</div>'
-            f'<div style="border-left:2px solid {color};padding-left:12px;color:#e2e8f0">'
+            f'<div style="border-left:2px solid {color};padding-left:12px;color:#3d3a2a">'
             f'{icon} {event["event"]}</div></div>',
             unsafe_allow_html=True,
         )
