@@ -42,7 +42,7 @@ def render_skills_radar(ranked):
     if len(ranked) < 2:
         return
         
-    st.subheader("Skills Radar — Top 3")
+    st.subheader("Skills Radar - Top 3")
     cats = ["JD Similarity×100", "Skill Match", "Exp Score", "GitHub", "LeetCode", "Projects"]
     radar_fig = go.Figure()
     for c in ranked[:3]:

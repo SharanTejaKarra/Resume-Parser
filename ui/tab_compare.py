@@ -24,7 +24,7 @@ def render_tab_compare(log):
             c2_name = st.selectbox("Candidate B", names, index=default_b, key="compare_sel_b")
 
         gen_exp   = st.checkbox("Generate LLM explanation (compares only these 2)", value=True)
-        submitted = st.form_submit_button("Compare →", use_container_width=True)
+        submitted = st.form_submit_button("Compare", use_container_width=True)
 
     if submitted:
         if c1_name == c2_name:
@@ -92,7 +92,7 @@ def _render_compare_card(col, cand, label):
         m6.metric("Scoring Mode",   cand.get("ats_breakdown", {}).get("scoring_mode", "—").capitalize())
 
         # Skill pills
-        st.markdown("**✅ Matched Skills**")
+        st.markdown("**Matched Skills**")
         matched = cand.get("matched_skills", [])[:10]
         if matched:
             pills = " ".join(
@@ -104,7 +104,7 @@ def _render_compare_card(col, cand, label):
         else:
             st.caption("None")
 
-        st.markdown("**❌ Missing JD Skills**")
+        st.markdown("**Missing JD Skills**")
         missing = cand.get("missing_skills", [])[:8]
         if missing:
             pills = " ".join(
@@ -118,7 +118,7 @@ def _render_compare_card(col, cand, label):
 
         # Experience entries
         if cand.get("work_experience"):
-            st.markdown("**💼 Experience**")
+            st.markdown("**Experience**")
             for ex in cand["work_experience"][:3]:
                 if isinstance(ex, dict):
                     role    = ex.get("title") or ex.get("role", "")
@@ -130,7 +130,7 @@ def _render_compare_card(col, cand, label):
 
         # Top projects
         if cand.get("projects"):
-            st.markdown("**🛠️ Projects**")
+            st.markdown("**Projects**")
             for p in cand["projects"][:3]:
                 if isinstance(p, dict):
                     ts = ", ".join((p.get("tech_stack") or [])[:4])

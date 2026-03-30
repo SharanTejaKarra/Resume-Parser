@@ -1,6 +1,6 @@
 """
-utils/langfuse_tracker.py  –  Langfuse observability wrapper
-Compatible with langfuse v2.20.0 SDK.
+utils/langfuse_tracker.py  -  Langfuse observability wrapper
+Compatible with langfuse v2.x SDK (v2.26.1).
 Tracks: prompt, response, token usage, estimated cost, latency.
 """
 import os
@@ -10,15 +10,15 @@ from utils.logger import get_logger
 
 log = get_logger("langfuse_tracker")
 
-# ── Try to import Langfuse; fail gracefully ────────────────────────────────────
+# ── Try to import Langfuse; fail gracefully ───────────────────────────────────
 try:
     from langfuse import Langfuse
-    from langfuse.model import ModelUsage   # ← correct import for v2.20.0
+    from langfuse.model import ModelUsage
     _LF_AVAILABLE = True
 except ImportError:
     _LF_AVAILABLE = False
 
-# ── Cost table (USD per 1 K tokens) – approximate ─────────────────────────────
+# ── Cost table (USD per 1 K tokens) – approximate ──────────────────────────────
 MODEL_COST_PER_1K: Dict[str, Dict[str, float]] = {
     "gpt-oss:120b-cloud": {"input": 0.0025, "output": 0.010},
     "gpt-oss:120b":       {"input": 0.0025, "output": 0.010},
@@ -30,7 +30,7 @@ MODEL_COST_PER_1K: Dict[str, Dict[str, float]] = {
 
 
 class LangfuseTracker:
-    """Thin wrapper around Langfuse v2.20.0 SDK for structured LLM call tracking."""
+    """Thin wrapper around Langfuse v2.x SDK for structured LLM call tracking."""
 
     def __init__(self) -> None:
         self._client: Optional[Any] = None
@@ -42,7 +42,7 @@ class LangfuseTracker:
 
         pk   = os.getenv("LANGFUSE_PUBLIC_KEY", "")
         sk   = os.getenv("LANGFUSE_SECRET_KEY", "")
-        host = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+        host = os.getenv("LANGFUSE_HOST") or os.getenv("LANGFUSE_BASE_URL") or "https://cloud.langfuse.com"
 
         pk_masked = pk[:10] + "..." if pk else "NOT_SET"
         sk_masked = sk[:10] + "..." if sk else "NOT_SET"
@@ -56,11 +56,11 @@ class LangfuseTracker:
                     host=host,
                 )
                 self.enabled = True
-                log.info("✓ Langfuse v2.20.0 tracker initialised → %s", host)
+                log.info("Langfuse v2.x tracker initialised -> %s", host)
             except Exception as exc:
-                log.error("✗ Langfuse init failed: %s", exc, exc_info=True)
+                log.error("Langfuse init failed: %s", exc, exc_info=True)
         else:
-            log.warning("Langfuse keys not configured – tracking disabled (local mode)")
+            log.warning("Langfuse keys not configured - tracking disabled (local mode)")
 
     # ──────────────────────────────────────────────────────────────────────────
     def track_llm_call(
@@ -77,8 +77,7 @@ class LangfuseTracker:
         end_time: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
-        Record an LLM generation in Langfuse v2.20.0.
-        Uses trace → generation pattern so latency shows correctly.
+        Record an LLM generation in Langfuse v2.x.
         """
         now        = datetime.now(timezone.utc)
         start_time = start_time or now
@@ -109,12 +108,11 @@ class LangfuseTracker:
 
         if self.enabled and self._client is not None:
             try:
-                # ── v2.20.0: trace → generation ───────────────────────────────
+                # v2.x pattern: trace -> generation
                 trace = self._client.trace(
                     name=trace_name,
-                    input=prompt,
-                    output=response,
-                    metadata=metadata or {},
+                    id=f"{trace_name}-{int(start_time.timestamp())}",
+                    metadata=metadata
                 )
 
                 trace.generation(
@@ -124,14 +122,14 @@ class LangfuseTracker:
                     output=response,
                     start_time=start_time,
                     end_time=end_time,
-                    usage=ModelUsage(               # ← TypedDict, pass as dict
+                    usage=ModelUsage(
                         unit="TOKENS",
                         input=input_tokens,
                         output=output_tokens,
                         total=input_tokens + output_tokens,
-                        input_cost=cost * 0.5,      # approximate split
+                        input_cost=cost * 0.5,
                         output_cost=cost * 0.5,
-                        total_cost=cost,            # ← this shows in Total Cost column
+                        total_cost=cost,
                     ),
                     metadata={
                         "cost_usd":   cost,
@@ -142,13 +140,12 @@ class LangfuseTracker:
 
                 self._client.flush()
                 log.info(
-                    "✓ Langfuse logged | trace=%s gen=%s tokens=%d cost=$%.6f latency=%.1fms",
+                    "Langfuse logged | trace=%s gen=%s tokens=%d cost=$%.6f latency=%.1fms",
                     trace_name, generation_name,
                     input_tokens + output_tokens, cost, latency_ms,
                 )
             except Exception as exc:
-                log.error("✗ Langfuse logging error: %s", exc, exc_info=True)
-                print(f"LANGFUSE ERROR: {exc}")
+                log.error("Langfuse logging error: %s", exc, exc_info=True)
         else:
             log.debug("Langfuse tracking disabled (enabled=%s)", self.enabled)
 
@@ -168,6 +165,11 @@ class LangfuseTracker:
                 self._client.flush()
             except Exception:
                 pass
+
+    # ──────────────────────────────────────────────────────────────────────────
+    def reinit(self) -> None:
+        """Re-initialize the tracker (used by sidebar Retry button)."""
+        self.__init__()
 
 
 # Singleton instance

@@ -10,7 +10,7 @@ baseRadius = "0.6rem"
 [server]
 enableStaticServing = false
 maxUploadSize = 50
-enableCORS = false
+enableCORS = true
 enableXsrfProtection = true
 fileWatcherType = "none"
 

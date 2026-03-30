@@ -60,7 +60,7 @@ def render_tab_observability():
 
         st.subheader("LLM Call Log")
         for i, r in enumerate(st.session_state.lf_logs):
-            with st.expander(f"Call {i+1} — {r.get('generation','')} | tokens={r.get('total_tokens',0)} | cost=${r.get('cost_usd',0):.5f}"):
+            with st.expander(f"Call {i+1} - {r.get('generation','')} | tokens={r.get('total_tokens',0)} | cost=${r.get('cost_usd',0):.5f}"):
                 st.info(f"**Trace:** {r.get('trace_name','')} | **Model:** {r.get('model','')}")
                 st.code(f"Input tokens: {r.get('input_tokens',0)} | Output tokens: {r.get('output_tokens',0)} | Total: {r.get('total_tokens',0)}")
                 st.code(f"Prompt chars: {r.get('prompt_chars',0)} | Response chars: {r.get('response_chars',0)}")

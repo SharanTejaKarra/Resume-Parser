@@ -156,7 +156,6 @@ def render_tab_upload(log, extract_pdf, extract_docx):
             st.session_state.ranked = sorted(st.session_state.candidates, key=lambda c: c["ats_score"], reverse=True)
             st.session_state.comparison = None
             st.success(f"Processed {len(new_candidates)} resume(s)!")
-            st.balloons()
 
     # Show processed candidates
     if st.session_state.candidates:

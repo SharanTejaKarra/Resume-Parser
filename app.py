@@ -1,5 +1,5 @@
 """
-app.py  –  AI Resume Parser  |  Modular Orchestrator
+app.py  -  AI Resume Parser  |  Modular Orchestrator
 """
 import streamlit as st
 from dotenv import load_dotenv

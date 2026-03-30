@@ -22,7 +22,7 @@ def render_sidebar():
 |---|---|
 | **Provider** | `{_provider_label}` |
 | **Model** | `{_model_name}` |
-| **Langfuse** | {'✅ connected' if _has_lf else '⚠️ not set'} |
+| **Langfuse** | {'Connected' if _has_lf else 'Not Set'} |
         """)
 
         st.divider()

@@ -39,10 +39,10 @@ def _score_bar(label: str, score: float, max_val: float = 100.0, color: str = "#
 # ── Panel 1 – Timeline ────────────────────────────────────────────────────────
 
 _TIMELINE_ICONS = {
-    "education":  "🎓",
-    "project":    "🛠️",
-    "internship": "🏢",
-    "fulltime":   "💼",
+    "education":  "[EDU]",
+    "project":    "[PROJ]",
+    "internship": "[INT]",
+    "fulltime":   "[FT]",
 }
 
 _TIMELINE_COLORS = {
@@ -93,7 +93,7 @@ def _render_timeline_panel():
 
     for event in timeline:
         etype = event.get("type", "project")
-        icon  = _TIMELINE_ICONS.get(etype, "📌")
+        icon  = _TIMELINE_ICONS.get(etype, "•")
         color = _TIMELINE_COLORS.get(etype, "#94a3b8")
         st.markdown(
             f'<div style="display:flex;align-items:flex-start;margin-bottom:10px">'
@@ -107,7 +107,7 @@ def _render_timeline_panel():
 # ── Panel 2 – Email Generator ─────────────────────────────────────────────────
 
 def _render_email_panel():
-    st.subheader("✉️ Auto Email Generator")
+    st.subheader("Auto Email Generator")
 
     jd_data = st.session_state.get("jd_data") or {}
     role    = jd_data.get("role") or "the role"
@@ -192,7 +192,7 @@ _DOMAIN_COLORS = {
 
 
 def _render_ontology_panel():
-    st.subheader("🧠 Skill Ontology Explorer")
+    st.subheader("Skill Ontology Explorer")
 
     cand = _pick_candidate("Analyze skills for candidate")
     if not cand:
@@ -233,7 +233,7 @@ def _render_ontology_panel():
             st.markdown(
                 f'<div style="background:#1e2130;border-radius:10px;padding:12px;margin-bottom:10px">'
                 f'<div style="color:{color};font-weight:700;font-size:14px">{dom}</div>'
-                f'<div style="font-size:22px;font-weight:800;color:#f8fafc">{"⭐"*score}{"☆"*(5-score)}&nbsp;{score}/5</div>'
+                f'<div style="font-size:22px;font-weight:800;color:#f8fafc">Score: {score}/5</div>'
                 f'<div style="color:#94a3b8;font-size:12px;margin-top:4px">{", ".join(skills[:4])}</div>'
                 f"</div>",
                 unsafe_allow_html=True,
@@ -248,7 +248,7 @@ def _render_ontology_panel():
 
     # Skill gaps
     if gaps:
-        st.markdown("#### ⚠️ Skill Gaps")
+        st.markdown("#### Skill Gaps")
         gap_html = " ".join(
             f'<span style="background:#3f1f1f;color:#f87171;padding:3px 10px;'
             f'border-radius:20px;font-size:13px;margin:3px;display:inline-block">{g}</span>'
