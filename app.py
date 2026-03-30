@@ -18,6 +18,7 @@ from ui.tab_rankings import render_tab_rankings
 from ui.tab_compare import render_tab_compare
 from ui.tab_obs import render_tab_observability
 from ui.tab_logs import render_tab_logs
+from ui.tab_recruiter import render_tab_recruiter
 
 log = get_logger("app")
 
@@ -54,11 +55,12 @@ render_sidebar()
 # Main UI
 render_hero_banner()
 
-tab_jd, tab_upload, tab_rank, tab_compare = st.tabs([
+tab_jd, tab_upload, tab_rank, tab_compare, tab_recruiter = st.tabs([
     "Job Description",
     "Upload Resumes",
     "Rankings",
     "Compare",
+    "Recruiter Tools",
     # "Observability",
     # "Logs",
 ])
@@ -74,6 +76,9 @@ with tab_rank:
 
 with tab_compare:
     render_tab_compare(log)
+
+with tab_recruiter:
+    render_tab_recruiter()
 
 # with tab_obs:
 #     render_tab_observability()

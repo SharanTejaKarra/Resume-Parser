@@ -12,6 +12,7 @@ enableStaticServing = false
 maxUploadSize = 50
 enableCORS = false
 enableXsrfProtection = true
+fileWatcherType = "none"
 
 [browser]
 gatherUsageStats = false
