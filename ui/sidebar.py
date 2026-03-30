@@ -6,15 +6,23 @@ def render_sidebar():
     with st.sidebar:
         # Active config (read-only)
         st.subheader("Active Config")
-        _ol_model = os.getenv("OLLAMA_MODEL", "gpt-oss:120b-cloud")
+
+        _provider = os.getenv("LLM_PROVIDER", "ollama").lower().strip()
         _has_lf   = bool(os.getenv("LANGFUSE_PUBLIC_KEY"))
+
+        if _provider == "openai":
+            _model_name = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+            _provider_label = "OpenAI"
+        else:
+            _model_name = os.getenv("OLLAMA_MODEL", "gpt-oss:120b-cloud")
+            _provider_label = "Ollama"
 
         st.write(f"""
 | Setting | Value |
 |---|---|
-| **Host** | `Ollama` |
-| **Model** | `{_ol_model}` |
-| **Langfuse** | {'connected' if _has_lf else 'not set'} |
+| **Provider** | `{_provider_label}` |
+| **Model** | `{_model_name}` |
+| **Langfuse** | {'✅ connected' if _has_lf else '⚠️ not set'} |
         """)
 
         st.divider()

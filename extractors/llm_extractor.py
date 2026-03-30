@@ -1,7 +1,8 @@
 """
-extractors/llm_extractor.py  –  LLM-based semantic extraction via Ollama
-Compatible with ollama v0.6.x (returns Pydantic ChatResponse, not plain dict).
-Supports both local Ollama and Ollama Cloud (gpt-oss:120b-cloud).
+extractors/llm_extractor.py  –  LLM-based semantic extraction
+Supports two backends selected via LLM_PROVIDER env var:
+  • "ollama"  – local Ollama or Ollama Cloud (default)
+  • "openai"  – OpenAI GPT-3.5-turbo
 Tracks every call through Langfuse.
 """
 import json
@@ -15,8 +16,11 @@ from utils.langfuse_tracker import tracker
 
 log = get_logger("llm_extractor")
 
+# ── Active provider ────────────────────────────────────────────────────────────
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama").lower().strip()
 
-# ── Ollama client factory ──────────────────────────────────────────────────────
+
+# ── Ollama backend ─────────────────────────────────────────────────────────────
 
 def _get_ollama_client():
     """Return a configured Ollama client (local or cloud)."""
@@ -41,10 +45,10 @@ def _get_ollama_client():
     return Client(host=host)
 
 
-def _chat(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[str, Any]:
+def _chat_ollama(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[str, Any]:
     """
     Raw Ollama chat call (ollama v0.6.x).
-    Returns {"content": str, "input_tokens": int, "output_tokens": int, "model": str}
+    Returns {"content": str, "input_tokens": int, "output_tokens": int, "model": str, "latency_ms": int}
     """
     model = model or os.getenv("OLLAMA_MODEL", "gpt-oss:120b-cloud")
     client = _get_ollama_client()
@@ -63,15 +67,12 @@ def _chat(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[st
 
     latency_ms = int((time.time() - t0) * 1000)
 
-    # ── ollama v0.6 returns a Pydantic ChatResponse object ────────────────────
-    # Access fields as attributes, not dict keys.
+    # ollama v0.6 returns a Pydantic ChatResponse object
     try:
         content = response.message.content  # type: ignore[union-attr]
     except AttributeError:
-        # Fallback for any edge case where it's still dict-like
         content = str(response)
 
-    # Token counts: ollama v0.6 uses prompt_eval_count / eval_count
     try:
         input_tokens  = getattr(response, "prompt_eval_count", None) or len(prompt.split())
         output_tokens = getattr(response, "eval_count", None)         or len(content.split())
@@ -80,8 +81,8 @@ def _chat(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[st
         output_tokens = len(content.split()) if content else 0
 
     log.info(
-        "LLM call done | model=%s latency=%dms in_tok=%d out_tok=%d",
-        model, latency_ms, input_tokens, output_tokens
+        "Ollama | model=%s latency=%dms in_tok=%d out_tok=%d",
+        model, latency_ms, input_tokens, output_tokens,
     )
     return {
         "content":       content or "",
@@ -90,6 +91,82 @@ def _chat(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[st
         "model":         model,
         "latency_ms":    latency_ms,
     }
+
+
+# ── OpenAI backend ─────────────────────────────────────────────────────────────
+
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+
+
+def _get_openai_client():
+    """Return a configured OpenAI client."""
+    try:
+        from openai import OpenAI
+    except ImportError:
+        raise ImportError(
+            "openai package missing. Run: pip install openai"
+        )
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    if not api_key or api_key.startswith("your_"):
+        raise ValueError(
+            "OPENAI_API_KEY is not set. Add it to your .env file."
+        )
+    return OpenAI(api_key=api_key)
+
+
+def _chat_openai(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[str, Any]:
+    """
+    OpenAI chat-completion call (GPT-3.5-turbo by default).
+    Returns the same shape as _chat_ollama so all callers are provider-agnostic.
+    """
+    model = model or OPENAI_MODEL
+    client = _get_openai_client()
+
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
+    t0 = time.time()
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,  # type: ignore[arg-type]
+            temperature=0.2,
+        )
+    except Exception as e:
+        log.error("OpenAI call failed: %s", e)
+        raise
+
+    latency_ms    = int((time.time() - t0) * 1000)
+    content       = response.choices[0].message.content or ""
+    input_tokens  = response.usage.prompt_tokens     if response.usage else len(prompt.split())
+    output_tokens = response.usage.completion_tokens if response.usage else len(content.split())
+
+    log.info(
+        "OpenAI | model=%s latency=%dms in_tok=%d out_tok=%d",
+        model, latency_ms, input_tokens, output_tokens,
+    )
+    return {
+        "content":       content,
+        "input_tokens":  int(input_tokens),
+        "output_tokens": int(output_tokens),
+        "model":         model,
+        "latency_ms":    latency_ms,
+    }
+
+
+# ── Unified dispatcher ─────────────────────────────────────────────────────────
+
+def _chat(prompt: str, system: str = "", model: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Route to the active LLM backend (controlled by LLM_PROVIDER env var).
+      LLM_PROVIDER=ollama  → Ollama (local or cloud)   [default]
+      LLM_PROVIDER=openai  → OpenAI GPT-3.5-turbo
+    """
+    if LLM_PROVIDER == "openai":
+        return _chat_openai(prompt, system=system, model=model)
+    return _chat_ollama(prompt, system=system, model=model)
 
 
 def _safe_parse_json(text: str) -> dict:

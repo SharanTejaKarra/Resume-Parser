@@ -39,38 +39,76 @@ DEGREE_RE = re.compile(
 
 # ── Known tech skills ─────────────────────────────────────────────────────────
 SKILL_KEYWORDS = {
-    "Python","Java","C++","C#","JavaScript","TypeScript","Go","Golang","Rust",
-    "Kotlin","Swift","Ruby","PHP","Scala","R","MATLAB","SQL","Bash","Shell",
+    # Core languages
+    "Python","Java","C","C++","C/C++","C#","JavaScript","TypeScript","Go","Golang","Rust",
+    "Kotlin","Swift","Ruby","PHP","Scala","R","MATLAB","Bash","Shell","Perl","Lua",
+    # Database / query
+    "SQL","MySQL","PostgreSQL","SQLite","MS SQL","Oracle DB","PL/SQL","T-SQL",
+    "MongoDB","Redis","Cassandra","DynamoDB","BigQuery","Snowflake","Supabase",
+    "Elasticsearch","Neo4j","Pinecone","ChromaDB","Weaviate","Qdrant",
+    # Web frameworks
     "React","Angular","Vue","Node.js","Django","FastAPI","Flask","Spring",
-    "Spring Boot","Express","Next.js","Nuxt","Svelte","GraphQL","REST","gRPC",
+    "Spring Boot","Express","Next.js","Nuxt","Svelte","Tailwind","Bootstrap",
+    "jQuery","WordPress","Gatsby","Remix","Astro",
+    # APIs & protocols
+    "REST API","RESTful APIs","REST","GraphQL","gRPC","WebSocket","SOAP",
+    "OAuth","JWT","OpenAPI","Swagger","Postman","API Design",
+    # AI / ML / DL
     "TensorFlow","PyTorch","scikit-learn","Keras","XGBoost","LightGBM",
-    "Hugging Face","LangChain","LangGraph","LlamaIndex","OpenAI",
+    "Hugging Face","LangChain","LangGraph","LlamaIndex","OpenAI","Gemini AI",
+    "Google Gemini AI","Anthropic","Mistral","Ollama","Groq",
     "Machine Learning","Deep Learning","NLP","Computer Vision","MLOps",
     "RAG","Vector Database","Embeddings","Fine-tuning","RLHF",
-    "Stable Diffusion","BERT","GPT","Transformer",
+    "Stable Diffusion","BERT","GPT","Transformer","YOLO","OpenCV",
+    # DevOps / Cloud
     "Docker","Kubernetes","AWS","GCP","Azure","Terraform","Ansible",
     "CI/CD","GitHub Actions","Jenkins","ArgoCD","Helm","Linux","Nginx",
-    "MongoDB","PostgreSQL","MySQL","Redis","Kafka","Spark","Hadoop",
-    "Elasticsearch","Cassandra","DynamoDB","BigQuery","Snowflake",
-    "Pandas","NumPy","Airflow","dbt","Git","GitHub","GitLab",
-    "Agile","Scrum","Jira","Figma","Microservices","ETL","API Design","System Design",
+    "Prometheus","Grafana","ELK Stack","Datadog","Vercel","Netlify",
+    # Data engineering
+    "Kafka","Spark","Hadoop","Airflow","dbt","Flink","Pandas","NumPy",
+    "Power BI","Tableau","Looker","ETL",
+    # Networking / SDN
+    "Ryu","Mininet","SDN","OpenFlow","Wireshark","TCP/IP","DNS",
+    "OSPF","BGP","VLAN","Firewall","VPN","NAT",
+    # Automation / RPA / Bots
+    "N8N","Zapier","Make","Selenium","Playwright","Puppeteer",
+    "Telegram Bot","Discord Bot","Slack Bot","WhatsApp Bot",
+    # Google ecosystem
+    "Gmail API","Google Sheets API","Google Drive API","Google Cloud",
+    "Firebase","Google Maps API","Google Analytics","Google Workspace",
+    # Version control & collaboration
+    "Git","GitHub","GitLab","Bitbucket","Jira","Confluence","Notion",
+    # Design & product
+    "Figma","Adobe XD","Canva","Sketch",
+    # Practices
+    "Agile","Scrum","Kanban","TDD","BDD","Microservices","System Design",
+    "OOP","Functional Programming","Data Structures","Algorithms",
 }
 
 # ── Skill inference map ────────────────────────────────────────────────────────
 SKILL_INFERENCE_MAP: Dict[str, List[str]] = {
-    "rag":           ["NLP","Vector Database","Embeddings"],
-    "langgraph":     ["LLM Orchestration","Python","LangChain"],
-    "langchain":     ["Python","NLP","LLM"],
-    "llama":         ["Machine Learning","NLP","Python"],
-    "gpt":           ["Machine Learning","NLP","OpenAI"],
-    "fastapi":       ["Python","REST","API Design"],
-    "transformer":   ["Deep Learning","NLP","PyTorch"],
-    "k8s":           ["Kubernetes","Docker"],
-    "embeddings":    ["NLP","Vector Database","Machine Learning"],
-    "vector":        ["Vector Database","Embeddings"],
-    "fine-tun":      ["Deep Learning","PyTorch","Machine Learning"],
-    "computer vision": ["Deep Learning","PyTorch","OpenCV"],
-    "microservice":  ["Docker","REST","API Design"],
+    "rag":            ["NLP","Vector Database","Embeddings"],
+    "langgraph":      ["LLM Orchestration","Python","LangChain"],
+    "langchain":      ["Python","NLP","LLM"],
+    "llama":          ["Machine Learning","NLP","Python"],
+    "gpt":            ["Machine Learning","NLP","OpenAI"],
+    "gemini":         ["Machine Learning","NLP","Gemini AI"],
+    "fastapi":        ["Python","REST API","API Design"],
+    "transformer":    ["Deep Learning","NLP","PyTorch"],
+    "k8s":            ["Kubernetes","Docker"],
+    "embeddings":     ["NLP","Vector Database","Machine Learning"],
+    "vector":         ["Vector Database","Embeddings"],
+    "fine-tun":       ["Deep Learning","PyTorch","Machine Learning"],
+    "computer vision":["Deep Learning","PyTorch","OpenCV"],
+    "microservice":   ["Docker","REST API","API Design"],
+    "sdn":            ["Ryu","Mininet","OpenFlow"],
+    "openflow":       ["SDN","Ryu","Mininet"],
+    "restful":        ["REST API","API Design"],
+    "n8n":            ["Automation","N8N"],
+    "telegram":       ["Telegram Bot","Python"],
+    "gmail api":      ["Gmail API","Google Workspace"],
+    "google sheets":  ["Google Sheets API","Google Workspace"],
+    "c/c++":          ["C","C++"],
 }
 
 # ── Section heading patterns ──────────────────────────────────────────────────
@@ -217,16 +255,60 @@ def _extract_experience_section(text: str) -> Tuple[str, str, str]:
     return exp_section, edu_section, text
 
 
+# ── Role/title heuristics for experience line detection ───────────────────────
+_ROLE_TITLE_RE = re.compile(
+    r'\b(?:intern|engineer|developer|analyst|architect|lead|manager|scientist|'
+    r'designer|consultant|specialist|coordinator|director|head|associate|'
+    r'trainee|apprentice|co-op|officer|executive|administrator|technician|'
+    r'programmer|researcher|team\s+leader)\b',
+    re.I,
+)
+
+
+def _split_role_company(line: str) -> Tuple[str, str]:
+    """
+    Handle patterns like:
+      "Full Stack Developer – Intern – UpKraft Technologies"
+      "IT Technical Intern & Team Leader @ Fifty Is Nifty"
+      "Software Engineer, Google"
+    """
+    # Try em/en dash or multiple dashes first
+    for sep in [r'\u2013', r'\u2014', r'\s+[-–—]+\s+', r'@', r',\s+']:
+        parts = re.split(sep, line, maxsplit=1)
+        if len(parts) == 2:
+            role = parts[0].strip()
+            company = parts[1].strip()
+            # If role still has intern/company signal at end, strip it
+            return role, company
+    return line.strip(), ""
+
+
+def _extract_date_range_from_lines(lines: List[str], start: int, lookahead: int = 6) -> str:
+    """Scan up to `lookahead` lines after `start` looking for a date range."""
+    for i in range(start, min(start + lookahead, len(lines))):
+        m = DATE_RANGE_RE.search(lines[i])
+        if m:
+            return m.group(0)
+    return ""
+
+
 def _compute_experience_from_section(exp_text: str) -> Tuple[float, float]:
     """
-    From the experience section text, compute:
-      (full_time_years, internship_months)
-    Looks at DATE RANGEs and checks whether the heading above contains Intern/Trainee.
+    3-pass robust experience extractor:
+
+    Pass 1 – Block-based (standard resumes, date inline)
+    Pass 2 – Line-scanning (non-standard: date at bottom, dashes, etc.)
+    Pass 3 – Fallback: just count any date range in section with intern check
+
+    Returns (full_time_years, internship_months).
     """
     full_time_months = 0.0
     intern_months    = 0.0
+    seen_ranges: set = set()  # avoid double-counting
 
-    # Split into "blocks" separated by blank lines (one per job)
+    lines = exp_text.splitlines()
+
+    # ── Pass 1: block-based ────────────────────────────────────────────────────
     blocks = re.split(r'\n\s*\n', exp_text.strip())
     for block in blocks:
         ranges = DATE_RANGE_RE.findall(block)
@@ -234,15 +316,64 @@ def _compute_experience_from_section(exp_text: str) -> Tuple[float, float]:
             continue
         is_intern = bool(INTERNSHIP_TITLE_RE.search(block))
         for rng in ranges:
-            # Split on dash/ndash/mdash/to
             parts = re.split(r'\s*(?:\u2013|\u2014|-{1,2}|to)\s*', rng, maxsplit=1)
             if len(parts) != 2:
                 continue
             dur = _duration_months(parts[0], parts[1])
+            if dur <= 0:
+                continue
+            key = rng.strip().lower()
+            if key in seen_ranges:
+                continue
+            seen_ranges.add(key)
             if is_intern:
                 intern_months += dur
             else:
                 full_time_months += dur
+
+    # ── Pass 2: line-scanning for non-standard layouts ─────────────────────────
+    # Handles: "Role – Company\n...description...\nMM/YYYY - MM/YYYY"
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        # If this line looks like a job title/role
+        if _ROLE_TITLE_RE.search(line) and len(line) < 120:
+            is_intern = bool(INTERNSHIP_TITLE_RE.search(line))
+            # Search for a date range in surrounding lines
+            rng = _extract_date_range_from_lines(lines, i, lookahead=7)
+            if rng:
+                key = rng.strip().lower()
+                if key not in seen_ranges:
+                    seen_ranges.add(key)
+                    parts = re.split(r'\s*(?:\u2013|\u2014|-{1,2}|to)\s*', rng, maxsplit=1)
+                    if len(parts) == 2:
+                        dur = _duration_months(parts[0], parts[1])
+                        if dur > 0:
+                            if is_intern:
+                                intern_months += dur
+                            else:
+                                full_time_months += dur
+        i += 1
+
+    # ── Pass 3: bare date range fallback ──────────────────────────────────────
+    # If still nothing found, grab ALL date ranges in section
+    if full_time_months == 0 and intern_months == 0:
+        all_ranges = DATE_RANGE_RE.findall(exp_text)
+        is_intern_ctx = bool(INTERNSHIP_TITLE_RE.search(exp_text))
+        for rng in all_ranges:
+            key = rng.strip().lower()
+            if key in seen_ranges:
+                continue
+            seen_ranges.add(key)
+            parts = re.split(r'\s*(?:\u2013|\u2014|-{1,2}|to)\s*', rng, maxsplit=1)
+            if len(parts) != 2:
+                continue
+            dur = _duration_months(parts[0], parts[1])
+            if dur > 0:
+                if is_intern_ctx:
+                    intern_months += dur
+                else:
+                    full_time_months += dur
 
     full_time_years = round(full_time_months / 12.0, 1)
     return full_time_years, intern_months
