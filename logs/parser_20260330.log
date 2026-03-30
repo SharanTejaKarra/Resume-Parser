@@ -1,0 +1,31 @@
+[2026-03-30 11:01:13] [INFO] [langfuse_tracker] Langfuse init: pk=pk-lf-14cb... sk=sk-lf-feed... host=https://cloud.langfuse.com
+[2026-03-30 11:01:13] [INFO] [langfuse_tracker] ✓ Langfuse v2.20.0 tracker initialised → https://cloud.langfuse.com
+[2026-03-30 11:02:09] [INFO] [llm_extractor] LLM JD extraction (chars=2784)
+[2026-03-30 11:02:09] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
+[2026-03-30 11:02:14] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=5555ms in_tok=984 out_tok=1532
+[2026-03-30 11:02:14] [INFO] [langfuse_tracker] track_llm_call | enabled=True | trace=resume-parser gen=jd-extraction tokens=2516 latency=5598.4ms
+[2026-03-30 11:02:15] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=resume-parser gen=jd-extraction tokens=2516 cost=$0.004048 latency=5598.4ms
+[2026-03-30 11:02:15] [INFO] [app] JD parsed successfully
+[2026-03-30 11:04:25] [INFO] [app] Starting: atharva_backend_engineer_resume.pdf
+[2026-03-30 11:04:26] [INFO] [pdf_parser] Stage 1 (PyMuPDF) success: chars=2734 pages=2 two_col=False
+[2026-03-30 11:04:26] [INFO] [app]   Parsed (Single-column, 2 pages, 2734 chars) via pymupdf [OK]
+[2026-03-30 11:04:26] [INFO] [regex_extractor] Running regex extraction (2734 chars)
+[2026-03-30 11:04:26] [INFO] [regex_extractor] Regex done → type=student ft=0y intern=0mo eff=0y skills=32
+[2026-03-30 11:04:26] [INFO] [llm_extractor] LLM extraction for 'atharva_backend_engineer_resume' (chars=2734)
+[2026-03-30 11:04:26] [INFO] [llm_extractor] Using local Ollama at http://localhost:11434
+[2026-03-30 11:04:34] [INFO] [llm_extractor] LLM call done | model=gpt-oss:20b-cloud latency=8399ms in_tok=1363 out_tok=2127
+[2026-03-30 11:04:34] [INFO] [langfuse_tracker] track_llm_call | enabled=True | trace=resume-parser gen=resume-extraction tokens=3490 latency=8402.9ms
+[2026-03-30 11:04:35] [INFO] [langfuse_tracker] ✓ Langfuse logged | trace=resume-parser gen=resume-extraction tokens=3490 cost=$0.005617 latency=8402.9ms
+[2026-03-30 11:04:35] [INFO] [github_analyzer] Fetching GitHub profile for: AtharvaBagade23
+[2026-03-30 11:04:40] [INFO] [github_analyzer] GitHub done: repos=20 stars=9 score=55.0
+[2026-03-30 11:04:40] [INFO] [leetcode_analyzer] Fetching LeetCode stats for: abagade26
+[2026-03-30 11:04:40] [INFO] [leetcode_analyzer] LeetCode done: E=49 M=12 H=0 score=14.6
+[2026-03-30 11:04:40] [INFO] [embedding_matcher] Computing embedding similarity…
+[2026-03-30 11:04:40] [INFO] [embedding_matcher] Loading sentence-transformer model (first run may take ~30s)…
+[2026-03-30 11:04:51] [INFO] [embedding_matcher] Model loaded ✓
+[2026-03-30 11:04:51] [INFO] [embedding_matcher] Embedding similarity: 0.6503
+[2026-03-30 11:04:52] [INFO] [embedding_matcher] Skill match: 7/24 = 29.2%
+[2026-03-30 11:04:52] [INFO] [app] FT Exp LLM: None
+[2026-03-30 11:04:52] [INFO] [app] FT Exp Regex: 0.0
+[2026-03-30 11:04:52] [INFO] [ats_scorer] ATS fresher-mode: 38.3 | sim=0.65 skill=29.2% proj=0.0 gh=55.0 ft=0.0y intern=0mo eff=0.00y
+[2026-03-30 11:04:52] [INFO] [app]   ATS score: 38.3 (mode=fresher)
