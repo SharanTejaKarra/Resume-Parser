@@ -2,6 +2,13 @@ import streamlit as st
 import plotly.graph_objects as go
 from ui.utils import get_score_color
 
+
+def _render_stat(col, label, text, color="#3d3a2a", size=42):
+    """Render a label and a large uniform value in a column."""
+    with col:
+        st.caption(label)
+        st.markdown(f"<div style='font-size:{size}px; font-weight:600; color:{color};'>{text}</div>", unsafe_allow_html=True)
+
 def render_hero_banner():
     """Render the main hero banner."""
     st.title("Resume Engine AI")
@@ -79,17 +86,15 @@ def render_candidate_row(c, badge, color):
     """Render a single candidate ranking card."""
     with st.container(border=True):
         col_rank, col_score, col_info = st.columns([1, 1, 4])
-        with col_rank:
-            st.subheader(badge)
-        with col_score:
-            st.markdown(f"### <span style='color:{color}'>{c['ats_score']}</span>", unsafe_allow_html=True)
+        _render_stat(col_rank, "Rank", badge, color="#3d3a2a", size=48)
+        _render_stat(col_score, "ATS Score", f"{c['ats_score']:.1f}", color=color, size=48)
         with col_info:
             st.write(f"**{c['name']}**")
             st.caption(f"{c['email'] or '—'} · {c['total_experience_years']} yrs exp")
 
         c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric("JD Sim", f"{c['jd_similarity']:.3f}")
-        c2.metric("Skill", f"{c['skill_match_pct']:.1f}%")
-        c3.metric("GitHub", f"{c['github'].get('github_score',0):.1f}")
-        c4.metric("LeetCode", f"{c['leetcode'].get('leetcode_score',0):.1f}")
-        c5.metric("Projects", f"{c['ats_breakdown']['project_score']:.1f}")
+        _render_stat(c1, "JD Sim", f"{c['jd_similarity']:.3f}")
+        _render_stat(c2, "Skill", f"{c['skill_match_pct']:.1f}%")
+        _render_stat(c3, "GitHub", f"{c['github'].get('github_score',0):.1f}")
+        _render_stat(c4, "LeetCode", f"{c['leetcode'].get('leetcode_score',0):.1f}")
+        _render_stat(c5, "Projects", f"{c['ats_breakdown']['project_score']:.1f}")
