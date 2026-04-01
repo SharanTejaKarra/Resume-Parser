@@ -160,6 +160,42 @@ DOMAIN_ONTOLOGY: Dict[str, List[str]] = {
     ],
 }
 
+# ── 2b. Soft skills set ──────────────────────────────────────────────────────
+
+SOFT_SKILLS: set = {
+    "Leadership", "Communication", "Teamwork", "Problem Solving",
+    "Critical Thinking", "Time Management", "Adaptability",
+    "Project Management", "Mentoring", "Collaboration",
+    "Presentation", "Stakeholder Management", "Strategic Planning",
+    "Decision Making", "Conflict Resolution", "Negotiation",
+}
+
+# ── 2c. Tech currency map ────────────────────────────────────────────────────
+
+TECH_CURRENCY: Dict[str, str] = {
+    # Modern/Current (2023+)
+    "LangChain": "current", "LlamaIndex": "current", "Next.js": "current",
+    "Rust": "current", "FastAPI": "current", "Kubernetes": "current",
+    "Terraform": "current", "RAG": "current", "Docker": "current",
+    "TypeScript": "current", "Svelte": "current", "Go": "current",
+    "PyTorch": "current", "Tailwind": "current", "GraphQL": "current",
+    "dbt": "current", "Airflow": "current", "React": "current",
+
+    # Established (still widely used)
+    "Python": "established", "JavaScript": "established", "Java": "established",
+    "SQL": "established", "PostgreSQL": "established", "MongoDB": "established",
+    "Redis": "established", "AWS": "established", "Django": "established",
+    "Node.js": "established", "Angular": "established", "Spring Boot": "established",
+    "MySQL": "established", "Git": "established", "Linux": "established",
+    "C++": "established", "C#": "established",
+
+    # Legacy (declining usage)
+    "jQuery": "legacy", "PHP": "legacy", "Perl": "legacy",
+    "SOAP": "legacy", "WordPress": "legacy", "MATLAB": "legacy",
+    "Hadoop": "legacy", "SVN": "legacy", "CoffeeScript": "legacy",
+    "Backbone.js": "legacy", "AngularJS": "legacy",
+}
+
 # Flatten domain → skill lookup (skill → [domain, ...])
 _SKILL_TO_DOMAINS: Dict[str, List[str]] = {}
 for _domain, _skills in DOMAIN_ONTOLOGY.items():
@@ -374,3 +410,120 @@ def analyze_skill_ontology(
         "role_fit":          role_fit,
         "skill_gaps":        skill_gaps,
     }
+
+
+# ── 8. v2 Skill classification & currency ────────────────────────────────────
+
+# Case-insensitive lookup for soft skills
+_SOFT_SKILLS_LOWER: set = {s.lower() for s in SOFT_SKILLS}
+
+# Case-insensitive lookup for tech currency
+_TECH_CURRENCY_LOWER: Dict[str, str] = {k.lower(): v for k, v in TECH_CURRENCY.items()}
+
+
+def classify_skill_types(normalized_skills: List[str]) -> Dict[str, Any]:
+    """
+    Classify skills into hard/soft, assess tech currency.
+
+    Returns:
+    {
+        "hard_skills": [str],
+        "soft_skills": [str],
+        "tech_currency_breakdown": {
+            "current": [str],
+            "established": [str],
+            "legacy": [str],
+            "unknown": [str],
+        },
+        "currency_score": float,  # 0-100, higher = more modern stack
+        "has_soft_skills": bool,
+        "skill_diversity_score": float,  # 0-100
+    }
+    """
+    hard_skills: List[str] = []
+    soft_skills: List[str] = []
+
+    for skill in normalized_skills:
+        if skill.lower() in _SOFT_SKILLS_LOWER:
+            soft_skills.append(skill)
+        else:
+            hard_skills.append(skill)
+
+    # Tech currency breakdown (hard skills only)
+    currency_breakdown: Dict[str, List[str]] = {
+        "current": [],
+        "established": [],
+        "legacy": [],
+        "unknown": [],
+    }
+    point_map = {"current": 3.0, "established": 2.0, "legacy": 0.5, "unknown": 1.0}
+    total_pts = 0.0
+
+    for skill in hard_skills:
+        status = _TECH_CURRENCY_LOWER.get(skill.lower(), "unknown")
+        currency_breakdown[status].append(skill)
+        total_pts += point_map[status]
+
+    # Currency score: ratio of actual to max possible
+    hard_count = len(hard_skills)
+    if hard_count > 0:
+        currency_score = round((total_pts / (hard_count * 3.0)) * 100.0, 1)
+    else:
+        currency_score = 0.0
+
+    # Skill diversity: count unique domains the skills span
+    domains_hit: set = set()
+    for skill in normalized_skills:
+        for dom in skill_to_domains(skill):
+            domains_hit.add(dom)
+
+    domain_count = len(domains_hit)
+    # Normalize: 1 domain=20, 2=40, 3=60, 4=80, 5+=100
+    skill_diversity_score = min(round(domain_count * 20.0, 1), 100.0)
+
+    log.info(
+        "Skill types: %d hard, %d soft, currency=%.1f, diversity=%.1f",
+        len(hard_skills), len(soft_skills), currency_score, skill_diversity_score,
+    )
+
+    return {
+        "hard_skills": hard_skills,
+        "soft_skills": soft_skills,
+        "tech_currency_breakdown": currency_breakdown,
+        "currency_score": currency_score,
+        "has_soft_skills": len(soft_skills) > 0,
+        "skill_diversity_score": skill_diversity_score,
+    }
+
+
+# ── 9. v2 Public high-level API ──────────────────────────────────────────────
+
+def analyze_skill_ontology_v2(
+    candidate: Dict[str, Any],
+    jd_required_skills: Optional[List[str]] = None,
+    target_role: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Enhanced entry point that includes v1 results plus new v2 analysis.
+    Adds skill_types, tech_currency_breakdown, and currency_score.
+    """
+    v1_result = analyze_skill_ontology(
+        candidate,
+        jd_required_skills=jd_required_skills,
+        target_role=target_role,
+    )
+
+    skill_types = classify_skill_types(v1_result["normalized_skills"])
+
+    v1_result["skill_types"] = skill_types
+    v1_result["tech_currency_breakdown"] = skill_types["tech_currency_breakdown"]
+    v1_result["currency_score"] = skill_types["currency_score"]
+
+    log.info(
+        "Ontology v2: currency=%.1f, hard=%d, soft=%d",
+        skill_types["currency_score"],
+        len(skill_types["hard_skills"]),
+        len(skill_types["soft_skills"]),
+    )
+
+    return v1_result

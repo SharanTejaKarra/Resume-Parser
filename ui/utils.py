@@ -61,7 +61,9 @@ def parse_uploaded_file(uploaded, extract_pdf_func, extract_docx_func, logger) -
 
 def build_candidate_dict(name: str, parse_result: dict, llm_data: dict, regex_data: dict,
                        gh: dict, lc: dict, jd_sim: float, skill_pct: float,
-                       matched_skills: list, missing_skills: list, ats: dict) -> dict:
+                       matched_skills: list, missing_skills: list, ats: dict,
+                       consistency=None, claims=None, level_info=None,
+                       confidence=None) -> dict:
     """Merge extracted data into a standardized candidate dictionary."""
     llm_ft = llm_data.get("full_time_experience_years")
     llm_intern = llm_data.get("internship_months")
@@ -109,4 +111,13 @@ def build_candidate_dict(name: str, parse_result: dict, llm_data: dict, regex_da
         "parse_status":       parse_result.get("parse_status", "OK"),
         "parser_used":        parse_result.get("parser_used", "unknown"),
         "char_count":         parse_result.get("char_count", 0),
+        # v2 additions
+        "consistency":       consistency or {},
+        "claims":            claims or {},
+        "level_info":        level_info or {},
+        "confidence":        confidence or {},
+        "candidate_level":   (level_info or {}).get("level", "unknown"),
+        "confidence_level":  (confidence or {}).get("confidence_level", "unknown"),
+        "confidence_score":  (confidence or {}).get("confidence_score", 0),
+        "recommendation":    (confidence or {}).get("recommendation", "unknown"),
     }

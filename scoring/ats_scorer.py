@@ -155,3 +155,94 @@ def compute_ats_score(
         github_score, full_time_exp_years, internship_months, effective_exp,
     )
     return breakdown
+
+
+# ── Confidence scoring ───────────────────────────────────────────────────────
+
+def compute_confidence_score(
+    ats_breakdown:      Dict[str, Any],
+    consistency_result: Dict[str, Any],
+    claim_result:       Dict[str, Any],
+) -> Dict[str, Any]:
+    """
+    Compute overall confidence in the ATS score by combining
+    consistency analysis, claim validation, and data completeness.
+
+    Parameters
+    ----------
+    ats_breakdown      : output of compute_ats_score()
+    consistency_result : output of consistency checker (expects "score" key, 0-100)
+    claim_result       : output of claim validator   (expects "credibility_score" key, 0-100)
+
+    Returns
+    -------
+    {
+        "confidence_level": str,   # "high" | "medium" | "low"
+        "confidence_score": float, # 0-100
+        "factors": {
+            "consistency": float,
+            "credibility": float,
+            "data_completeness": float,
+        },
+        "recommendation": str,
+    }
+    """
+    # ── Factor 1: consistency (weight 0.4) ───────────────────────────────
+    consistency = float(consistency_result.get("score", 0) or 0)
+
+    # ── Factor 2: credibility (weight 0.4) ───────────────────────────────
+    credibility = float(claim_result.get("credibility_score", 0) or 0)
+
+    # ── Factor 3: data completeness (weight 0.2) ────────────────────────
+    completeness_fields = [
+        float(ats_breakdown.get("github_score", 0) or 0) > 0,
+        float(ats_breakdown.get("leetcode_score", 0) or 0) > 0,
+        float(ats_breakdown.get("skill_match_pct", 0) or 0) > 0,
+        float(ats_breakdown.get("project_score", 0) or 0) > 0,
+        float(ats_breakdown.get("jd_similarity", 0) or 0) > 0,
+        float(ats_breakdown.get("experience_score", 0) or 0) > 0,
+    ]
+    data_completeness = (sum(completeness_fields) / len(completeness_fields)) * 100.0
+
+    # ── Weighted confidence score ────────────────────────────────────────
+    confidence_score = round(
+        0.4 * consistency + 0.4 * credibility + 0.2 * data_completeness,
+        1,
+    )
+
+    # ── Confidence level ─────────────────────────────────────────────────
+    if confidence_score >= 75:
+        confidence_level = "high"
+    elif confidence_score >= 50:
+        confidence_level = "medium"
+    else:
+        confidence_level = "low"
+
+    # ── Recommendation ───────────────────────────────────────────────────
+    ats_score = float(ats_breakdown.get("ats_score", 0) or 0)
+
+    if ats_score >= 70 and confidence_score >= 70:
+        recommendation = "strong_candidate"
+    elif ats_score >= 50 and confidence_score >= 50:
+        recommendation = "review_recommended"
+    elif ats_score >= 50 and confidence_score < 50:
+        recommendation = "proceed_with_caution"
+    else:
+        recommendation = "flag_for_review"
+
+    log.info(
+        "Confidence: %.1f (%s) | ATS=%.1f | rec=%s | "
+        "consistency=%.1f credibility=%.1f completeness=%.1f",
+        confidence_score, confidence_level, ats_score, recommendation,
+        consistency, credibility, data_completeness,
+    )
+    return {
+        "confidence_level": confidence_level,
+        "confidence_score": confidence_score,
+        "factors": {
+            "consistency":      round(consistency, 1),
+            "credibility":      round(credibility, 1),
+            "data_completeness": round(data_completeness, 1),
+        },
+        "recommendation": recommendation,
+    }

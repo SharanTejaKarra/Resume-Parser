@@ -5,6 +5,7 @@ Exposes 3 recruiter-facing feature panels:
   Panel 1 – Timeline / Growth Analysis
   Panel 2 – Auto Email Generator
   Panel 3 – Skill Ontology Explorer
+  Panel 4 – Candidate Deep Dive
 """
 
 import streamlit as st
@@ -269,6 +270,120 @@ def _render_ontology_panel():
         st.caption(f"Unmapped skills (not in ontology): {', '.join(result['unmapped_skills'][:10])}")
 
 
+# ── Panel 4 – Candidate Deep Dive ────────────────────────────────────────────
+
+def _render_deep_dive_panel():
+    """Candidate Deep Dive: consistency, claims, level assessment, tech currency."""
+    st.subheader("Candidate Deep Dive")
+    cand = _pick_candidate("Deep dive into candidate")
+    if not cand:
+        return
+
+    consistency = cand.get("consistency", {})
+    claims = cand.get("claims", {})
+    level_info = cand.get("level_info", {})
+    confidence = cand.get("confidence", {})
+
+    if not consistency and not claims:
+        st.info("No deep analysis data available. Re-process resumes to generate v2 analysis.")
+        return
+
+    # Section 1: Overview Cards
+    st.markdown("#### Assessment Overview")
+    oc1, oc2, oc3, oc4 = st.columns(4)
+    _score_bar_in = lambda col, label, score, color: col.markdown(
+        f'<div style="text-align:center;padding:10px;background:#f8f7f2;border-radius:8px">'
+        f'<div style="font-size:11px;color:#6d6a5a">{label}</div>'
+        f'<div style="font-size:28px;font-weight:700;color:{color}">{score:.0f}</div></div>',
+        unsafe_allow_html=True)
+
+    cs = consistency.get("consistency_score", 0)
+    cr = claims.get("credibility_score", 0)
+    conf_s = confidence.get("confidence_score", 0)
+    _score_bar_in(oc1, "Consistency", cs, "#00e5a0" if cs >= 70 else "#ffb340" if cs >= 40 else "#ff6b9d")
+    _score_bar_in(oc2, "Credibility", cr, "#00e5a0" if cr >= 70 else "#ffb340" if cr >= 40 else "#ff6b9d")
+    _score_bar_in(oc3, "Confidence", conf_s, "#00e5a0" if conf_s >= 70 else "#ffb340" if conf_s >= 40 else "#ff6b9d")
+    oc4.markdown(
+        f'<div style="text-align:center;padding:10px;background:#f8f7f2;border-radius:8px">'
+        f'<div style="font-size:11px;color:#6d6a5a">Level</div>'
+        f'<div style="font-size:20px;font-weight:700;color:#4f8ef7">{level_info.get("level", "—").upper()}</div>'
+        f'<div style="font-size:10px;color:#94a3b8">{level_info.get("evaluation_path", "").replace("_", " ")}</div></div>',
+        unsafe_allow_html=True)
+
+    # Section 2: Red Flags
+    red_flags = consistency.get("red_flags", [])
+    if red_flags:
+        st.markdown("#### Red Flags")
+        for flag in red_flags:
+            sev = flag.get("severity", "low")
+            sev_colors = {"high": "#ef4444", "medium": "#f59e0b", "low": "#6b7280"}
+            st.markdown(
+                f'<div style="background:#f8f7f2;border-left:4px solid {sev_colors.get(sev, "#6b7280")};'
+                f'padding:8px 12px;margin:4px 0;border-radius:4px">'
+                f'<b style="color:{sev_colors.get(sev)}">[{sev.upper()}]</b> '
+                f'<b>{flag.get("type", "")}</b>: {flag.get("detail", "")}</div>',
+                unsafe_allow_html=True)
+
+    # Section 3: Skill Evidence
+    skill_evidence = claims.get("skill_evidence", {})
+    if skill_evidence:
+        st.markdown("#### Skill Evidence Map")
+        demonstrated = [s for s, v in skill_evidence.items() if v.get("demonstrated")]
+        undemonstrated = [s for s, v in skill_evidence.items() if not v.get("demonstrated")]
+
+        dem_ratio = claims.get("demonstrated_ratio", 0)
+        _score_bar(f"Skills Demonstrated ({len(demonstrated)}/{len(skill_evidence)})",
+                   dem_ratio * 100, 100, "#00e5a0" if dem_ratio > 0.6 else "#ffb340")
+
+        if demonstrated:
+            pills = " ".join(
+                f'<span style="background:#1e3a2f;color:#4ade80;padding:2px 8px;'
+                f'border-radius:12px;font-size:12px;margin:2px;display:inline-block">{s}</span>'
+                for s in demonstrated[:15])
+            st.markdown(f"**Demonstrated:** {pills}", unsafe_allow_html=True)
+
+        if undemonstrated:
+            pills = " ".join(
+                f'<span style="background:#3f3a1f;color:#fbbf24;padding:2px 8px;'
+                f'border-radius:12px;font-size:12px;margin:2px;display:inline-block">{s}</span>'
+                for s in undemonstrated[:15])
+            st.markdown(f"**Claimed Only:** {pills}", unsafe_allow_html=True)
+
+    # Section 4: Career Path
+    if claims.get("is_career_switcher"):
+        st.markdown("#### Career Transition Detected")
+        domains = claims.get("career_domains", [])
+        if domains:
+            st.markdown(" → ".join(f"**{d}**" for d in domains))
+
+    # Section 5: Bonus Signals
+    bonus = claims.get("bonus_signals", {})
+    if any(bonus.values()):
+        st.markdown("#### Bonus Signals")
+        bonus_items = []
+        if bonus.get("certifications"): bonus_items.append(f"Certifications: {bonus['certifications']}")
+        if bonus.get("achievements"): bonus_items.append(f"Achievements: {bonus['achievements']}")
+        if bonus.get("open_source"): bonus_items.append("Open Source Contributor")
+        if bonus.get("publications"): bonus_items.append(f"Publications: {bonus['publications']}")
+        st.markdown(" · ".join(f"**{b}**" for b in bonus_items))
+
+    # Section 6: Recommendation
+    rec = confidence.get("recommendation", "unknown")
+    rec_labels = {"strong_candidate": "Strong Candidate — proceed to interview",
+                  "review_recommended": "Review Recommended — good potential, verify claims",
+                  "proceed_with_caution": "Proceed with Caution — significant gaps or unverified claims",
+                  "flag_for_review": "Flag for Review — low confidence in assessment"}
+    rec_colors = {"strong_candidate": "#00e5a0", "review_recommended": "#ffb340",
+                 "proceed_with_caution": "#ff6b9d", "flag_for_review": "#ef4444"}
+    st.divider()
+    st.markdown(
+        f'<div style="background:#f8f7f2;border:2px solid {rec_colors.get(rec, "#94a3b8")};'
+        f'padding:16px;border-radius:8px;text-align:center">'
+        f'<div style="font-size:18px;font-weight:700;color:{rec_colors.get(rec, "#94a3b8")}">'
+        f'{rec_labels.get(rec, "Unknown")}</div></div>',
+        unsafe_allow_html=True)
+
+
 # ── Tab entry point ───────────────────────────────────────────────────────────
 
 def render_tab_recruiter():
@@ -281,7 +396,7 @@ def render_tab_recruiter():
 
     panel = st.radio(
         "Select Tool",
-        ["Timeline & Growth", "Auto Email Generator", "Skill Ontology"],
+        ["Timeline & Growth", "Auto Email Generator", "Skill Ontology", "Candidate Deep Dive"],
         horizontal=True,
         key="recruiter_panel",
         label_visibility="collapsed",
@@ -295,3 +410,5 @@ def render_tab_recruiter():
         _render_email_panel()
     elif panel == "Skill Ontology":
         _render_ontology_panel()
+    elif panel == "Candidate Deep Dive":
+        _render_deep_dive_panel()

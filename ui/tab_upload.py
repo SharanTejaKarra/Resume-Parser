@@ -7,6 +7,10 @@ from analyzers.leetcode_analyzer import analyze_leetcode
 from scoring.embedding_matcher import compute_jd_similarity, compute_skill_match
 from scoring.ats_scorer import compute_ats_score
 from ui.utils import ui_log, add_lf_record, safe_list, parse_uploaded_file, build_candidate_dict
+from analyzers.consistency_checker import check_resume_consistency
+from analyzers.claim_validator import validate_claims
+from scoring.level_router import classify_candidate_level
+from scoring.ats_scorer import compute_confidence_score
 
 def safe_float(val, default=0.0):
     try:
@@ -130,12 +134,50 @@ def render_tab_upload(log, extract_pdf, extract_docx):
 
 
 
-                    # 9. Build
+                    # 9. Consistency Check
+                    consistency = check_resume_consistency(
+                        {"skills": all_skills, "work_experience": safe_list(llm_data.get("work_experience")),
+                         "projects": safe_list(llm_data.get("projects")), "education": safe_list(llm_data.get("education")),
+                         "is_student": is_stud, "candidate_type": ctype,
+                         "full_time_experience_years": ft_exp, "internship_months": i_months},
+                        resume_text=full_text
+                    )
+                    ui_log(f"  Consistency: {consistency['consistency_score']:.0f}/100 | Flags: {len(consistency.get('red_flags', []))}", log)
+
+                    # 10. Claim Validation
+                    claims = validate_claims(
+                        {"skills": all_skills, "work_experience": safe_list(llm_data.get("work_experience")),
+                         "projects": safe_list(llm_data.get("projects")), "education": safe_list(llm_data.get("education")),
+                         "certifications": safe_list(llm_data.get("certifications")),
+                         "achievements": safe_list(llm_data.get("achievements")),
+                         "is_student": is_stud, "candidate_type": ctype,
+                         "github": gh},
+                        resume_text=full_text
+                    )
+                    ui_log(f"  Credibility: {claims['credibility_score']:.0f}/100 | Demonstrated: {claims['demonstrated_ratio']:.0%}", log)
+
+                    # 11. Level Classification
+                    level_info = classify_candidate_level(
+                        {"work_experience": safe_list(llm_data.get("work_experience")),
+                         "full_time_experience_years": ft_exp, "internship_months": i_months,
+                         "is_student": is_stud, "candidate_type": ctype,
+                         "github": gh, "projects": safe_list(llm_data.get("projects")),
+                         "skills": all_skills}
+                    )
+                    ui_log(f"  Level: {level_info['level']} ({level_info['evaluation_path']})", log)
+
+                    # 12. Confidence Score
+                    confidence = compute_confidence_score(ats, consistency, claims)
+                    ui_log(f"  Confidence: {confidence['confidence_level']} | Recommendation: {confidence['recommendation']}", log)
+
+                    # 13. Build
                     candidate = build_candidate_dict(
                         name=cand_label, parse_result=parse_res,
                         llm_data=llm_data, regex_data=regex,
                         gh=gh, lc=lc, jd_sim=jd_sim, skill_pct=skill_pct,
-                        matched_skills=matched, missing_skills=missing, ats=ats
+                        matched_skills=matched, missing_skills=missing, ats=ats,
+                        consistency=consistency, claims=claims,
+                        level_info=level_info, confidence=confidence,
                     )
                     new_candidates.append(candidate)
                     ui_log(f"  ATS score: {ats['ats_score']} (mode={ats['scoring_mode']})", log)
@@ -202,6 +244,35 @@ def render_candidate_expander(c, idx):
         if c["leetcode"].get("total_solved"):
             lc_d = c["leetcode"]
             st.write(f"**LeetCode:** [{lc_d['username']}]({lc_d['profile_url']}) · Easy: {lc_d['easy_solved']} Medium: {lc_d['medium_solved']} Hard: {lc_d['hard_solved']} · Score: **{lc_d['leetcode_score']}**")
+
+        # v2: Confidence & Level
+        if c.get("confidence"):
+            conf = c["confidence"]
+            level = c.get("level_info", {})
+            rec_colors = {"strong_candidate": "#00e5a0", "review_recommended": "#ffb340",
+                         "proceed_with_caution": "#ff6b9d", "flag_for_review": "#ef4444"}
+            rec = conf.get("recommendation", "unknown")
+            rec_color = rec_colors.get(rec, "#94a3b8")
+            st.markdown(
+                f'<div style="background:#f8f7f2;border-left:4px solid {rec_color};padding:8px 12px;margin:8px 0;border-radius:4px">'
+                f'<b>Level:</b> {level.get("level", "—").capitalize()} ({level.get("evaluation_path", "—")}) · '
+                f'<b>Confidence:</b> {conf.get("confidence_score", 0):.0f}/100 '
+                f'(<span style="color:{rec_color}">{rec.replace("_", " ").title()}</span>)'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+        # v2: Red Flags
+        if c.get("consistency", {}).get("red_flags"):
+            flags = c["consistency"]["red_flags"]
+            flag_html = " ".join(
+                f'<span style="background:{"#3f1f1f" if f["severity"]=="high" else "#3f3a1f"};'
+                f'color:{"#f87171" if f["severity"]=="high" else "#fbbf24"};'
+                f'padding:2px 8px;border-radius:12px;font-size:11px;margin:2px;display:inline-block">'
+                f'{f["type"]}: {f["detail"][:50]}</span>'
+                for f in flags[:5]
+            )
+            st.markdown(f"**Red Flags:** {flag_html}", unsafe_allow_html=True)
 
         if st.checkbox("Show Full Extracted Data", key=f"raw_data_{idx}"):
             clean = {k: v for k, v in c.items() if k not in ["github", "leetcode", "ats_breakdown"]}
