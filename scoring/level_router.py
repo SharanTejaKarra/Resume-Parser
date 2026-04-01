@@ -71,7 +71,11 @@ _JUNIOR_KEYWORDS = {"intern", "trainee", "junior", "associate"}
 
 def _effective_years(candidate: Dict[str, Any]) -> float:
     """Compute effective years of experience from full-time + internships."""
-    ft_years       = float(candidate.get("full_time_exp_years", 0) or 0)
+    ft_years       = float(
+        candidate.get("full_time_experience_years")
+        or candidate.get("full_time_exp_years")
+        or 0
+    )
     intern_months  = float(candidate.get("internship_months", 0) or 0)
     intern_years   = intern_months / 12.0
     return ft_years + intern_years
@@ -123,7 +127,12 @@ def _has_exceptional_portfolio(candidate: Dict[str, Any]) -> bool:
     Fresher with strong GitHub score or 3+ substantial projects
     may qualify for mid-level evaluation.
     """
-    gh_score  = float(candidate.get("github_score", 0) or 0)
+    gh_data   = candidate.get("github") or {}
+    gh_score  = float(
+        (gh_data.get("github_score") if isinstance(gh_data, dict) else 0)
+        or candidate.get("github_score")
+        or 0
+    )
     projects  = candidate.get("projects") or []
     rich_proj = sum(
         1 for p in projects

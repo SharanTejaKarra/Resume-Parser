@@ -188,7 +188,7 @@ def compute_confidence_score(
     }
     """
     # ── Factor 1: consistency (weight 0.4) ───────────────────────────────
-    consistency = float(consistency_result.get("score", 0) or 0)
+    consistency = float(consistency_result.get("consistency_score", 0) or 0)
 
     # ── Factor 2: credibility (weight 0.4) ───────────────────────────────
     credibility = float(claim_result.get("credibility_score", 0) or 0)
